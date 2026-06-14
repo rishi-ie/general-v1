@@ -1,0 +1,128 @@
+{
+  "_instructions": "Copy this file to auth.json and fill in your API key(s). The provider(s) you configure here will be available in settings.json.",
+  
+  "_providers": {
+    "anthropic": {
+      "displayName": "Anthropic (Claude)",
+      "envVar": "ANTHROPIC_API_KEY",
+      "models": ["claude-opus-4-5", "claude-sonnet-4-5", "claude-sonnet-4", "claude-haiku-4"]
+    },
+    "google": {
+      "displayName": "Google Gemini",
+      "envVar": "GEMINI_API_KEY",
+      "models": ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.0-flash"]
+    },
+    "openai": {
+      "displayName": "OpenAI",
+      "envVar": "OPENAI_API_KEY",
+      "models": ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo"]
+    },
+    "deepseek": {
+      "displayName": "DeepSeek",
+      "envVar": "DEEPSEEK_API_KEY",
+      "models": ["deepseek-chat", "deepseek-coder"]
+    },
+    "groq": {
+      "displayName": "Groq",
+      "envVar": "GROQ_API_KEY",
+      "models": ["llama-3.3-70b", "mixtral-8x7b"]
+    },
+    "mistral": {
+      "displayName": "Mistral",
+      "envVar": "MISTRAL_API_KEY",
+      "models": ["mistral-large", "mistral-medium", "codestral"]
+    },
+    "openrouter": {
+      "displayName": "OpenRouter",
+      "envVar": "OPENROUTER_API_KEY",
+      "models": ["anthropic/claude-3.5-sonnet", "google/gemini-2.0-flash"]
+    },
+    "together": {
+      "displayName": "Together AI",
+      "envVar": "TOGETHER_API_KEY",
+      "models": ["meta-llama/Llama-3.3-70B", "deepseek-ai/DeepSeek-V3"]
+    },
+    "fireworks": {
+      "displayName": "Fireworks AI",
+      "envVar": "FIREWORKS_API_KEY",
+      "models": ["accounts/fireworks/models/llama-v3p1-70b", "accounts/fireworks/models/deepseek-v3-ablaze"]
+    },
+    "nvidia": {
+      "displayName": "NVIDIA NIM",
+      "envVar": "NVIDIA_API_KEY",
+      "models": ["nvidia/llama-3.1-nemotron-70b-instruct"]
+    },
+    "cerebras": {
+      "displayName": "Cerebras",
+      "envVar": "CEREBRAS_API_KEY",
+      "models": ["llama-3.3-70b"]
+    },
+    "huggingface": {
+      "displayName": "Hugging Face",
+      "envVar": "HF_TOKEN",
+      "models": ["meta-llama/Llama-3.3-70B-Instruct"]
+    }
+  },
+
+  "_example": {
+    "anthropic": {
+      "type": "api_key",
+      "key": "sk-ant-your-key-here"
+    },
+    "google": {
+      "type": "api_key",
+      "key": "your-google-key-here"
+    }
+  },
+
+  "_actual_fill_below": "Replace this section with your actual API keys (delete the _actual_fill_below line)",
+
+  "anthropic": {
+    "type": "api_key",
+    "key": ""
+  },
+  "google": {
+    "type": "api_key",
+    "key": ""
+  },
+  "openai": {
+    "type": "api_key",
+    "key": ""
+  },
+  "deepseek": {
+    "type": "api_key",
+    "key": ""
+  },
+  "groq": {
+    "type": "api_key",
+    "key": ""
+  },
+  "mistral": {
+    "type": "api_key",
+    "key": ""
+  },
+  "openrouter": {
+    "type": "api_key",
+    "key": ""
+  },
+  "together": {
+    "type": "api_key",
+    "key": ""
+  },
+  "fireworks": {
+    "type": "api_key",
+    "key": ""
+  },
+  "nvidia": {
+    "type": "api_key",
+    "key": ""
+  },
+  "cerebras": {
+    "type": "api_key",
+    "key": ""
+  },
+  "huggingface": {
+    "type": "api_key",
+    "key": ""
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "extensions": [
+    "extensions/model-router.ts",
+    "extensions/memory.ts",
+    "extensions/context-manager.ts",
+    "extensions/persona.ts"
+  ],
+  "skills": [
+    "skills/constitutions/00-CONSTITUTION.md",
+    "skills/personas/10-PERSONA.md"
+  ],
+  "prompts": [
+    "prompts/extra-instructions.md"
+  ],
+  "model": {
+    "primary": "claude-sonnet"
+  }
+}
