@@ -1,213 +1,75 @@
 # General V1
 
-A **general-purpose digital employee** built on [Meta Agent](./meta-agent/README.md) — designed for founders and power users who want an AI agent that can handle diverse tasks with proper identity, memory, planning, and boundaries.
+A **general-purpose digital employee** built on [Meta Agent](./meta-agent/README.md) — designed to be the most powerful modular AI employee framework, capable of specializing into any domain.
 
-## What It Does
+## What It Is
 
-General V1 is a configurable AI employee that combines:
+General V1 is a **modular digital employee factory**. Instead of a monolithic agent, it's a collection of interchangeable modules (skills + extensions) that get packaged into a system prompt for Pi Agent. The result is a robust general employee that can be extended into domain-specific employees (software, research, web, etc.).
 
-- **Identity & Persona** — Generative identity and communication style
-- **Memory** — Persistent memory across sessions via mem0
-- **Planning & Execution** — Breaks down tasks and executes methodically
-- **Mission Control** — Tracks tickets, progress, and completed work
-- **Rule Book** — Operates within defined boundaries and guidelines
-- **Browser** — Web browsing capability for research and actions
-- **Communication** — Clear, professional interaction protocols
-- **Permission System** — Operates with appropriate authority levels
-- **JD Documentation** — Understands and references job description context
-- **Display Stats** — Real-time performance and activity metrics
-
-## Architecture
+## The Stack
 
 ```
-general-v1/
-└── meta-agent/                         # Meta Agent framework
-    ├── meta-agent-config/              # Digital employee configuration
-    │   ├── config.json                 # Component loading config
-    │   ├── auth.json.example           # API keys template
-    │   ├── extensions/                 # TypeScript extensions
-    │   │   ├── sub-agent-context.ts    # Sub-agent orchestration
-    │   │   ├── mem0.ts                # Persistent memory
-    │   │   ├── mission-control.ts      # Ticket tracking
-    │   │   ├── communication.ts        # Interaction protocols
-    │   │   ├── feedback-learning.ts    # Learning system (v2)
-    │   │   ├── permission.ts           # Authority management
-    │   │   └── display-stats.ts       # Stats display
-    │   ├── skills/                     # Markdown knowledge
-    │   │   ├── constitutions/         # Core principles
-    │   │   ├── personas/              # Communication style
-    │   │   ├── planning/              # Planning frameworks
-    │   │   ├── mission-control/       # Task management
-    │   │   ├── rules/                 # Boundaries
-    │   │   ├── browser/               # Web browsing
-    │   │   ├── communication/         # Interaction protocols
-    │   │   ├── feedback/              # Learning (v2)
-    │   │   ├── permission/            # Authority levels
-    │   │   └── docs/                  # JD documentation
-    │   └── prompts/                   # Extra system instructions
-    ├── pi/                             # Pi Agent (terminal coding harness)
-    ├── run.sh                          # Launch script
-    └── README.md                       # Meta Agent documentation
+You (builder)
+    └── General V1 (base employee)
+            └── Meta Agent (framework)
+                    └── Pi Agent (runtime)
+                            └── v1/modules/ (what you're building)
+                                    ├── planning/     ✅
+                                    ├── browser/      ✅
+                                    ├── docs/         ✅ (empty for general)
+                                    ├── identity/     ✅ (built during assembly)
+                                    ├── mem0/         🔧
+                                    ├── mission-control/ 🔧
+                                    ├── permission/   🔧
+                                    ├── communication/🔧
+                                    ├── display-stats/🔧
+                                    └── sub-agent-context/ 🔧
 ```
 
-## Components
+## Modules
 
-### Core Skills (Markdown)
+| Module | Type | Status | Purpose |
+|--------|------|--------|---------|
+| `planning/` | Skill + Extension | ✅ | Manus-style file-based task planning |
+| `browser/` | Skill + Extension | ✅ | Web browsing via browser-use |
+| `identity/` | Skill | ✅ (assembly) | Name, role, communication style, boundaries |
+| `docs/` | Skill | ✅ (intentional) | JD documentation — empty for general, filled per-domain |
+| `mem0/` | Extension | 🔧 | Persistent cross-session memory |
+| `mission-control/` | Extension | 🔧 | Ticket tracking and task management |
+| `permission/` | Extension | 🔧 | Authority levels and approval workflows |
+| `communication/` | Extension | 🔧 | Interaction protocols |
+| `display-stats/` | Extension | 🔧 | Real-time performance metrics |
+| `sub-agent-context/` | Extension | 🔧 | Sub-agent orchestration |
 
-| Component | Description |
-|-----------|-------------|
-| **Persona** | Communication style and behavioral guidelines |
-| **Identity** | Generative identity framework (name, role, background) |
-| **Planning & Execution** | Task decomposition and execution methodology |
-| **Mission Control** | Ticket tracking and progress documentation |
-| **Rule Book** | Boundaries and operational guidelines |
-| **Browser** | Web research and interaction protocols |
-| **JD Documentation** | Job description context and relevance system |
-| **Communication** | Interaction protocols and response standards |
-| **Permission** | Authority levels and approval workflows |
+## How It Works
 
-### Core Extensions (TypeScript)
+1. **Build modules** — Each v1 module is a self-contained skill (markdown) or extension (TypeScript)
+2. **Package** — All modules get composed into a system prompt for Pi Agent
+3. **Deploy** — The result is a General V1 digital employee
+4. **Specialize** — Add domain-specific modules on top to create Software Employee, Research Employee, etc.
 
-| Extension | Description |
-|-----------|-------------|
-| **mem0** | Persistent memory across sessions |
-| **sub-agent-context** | Orchestrates sub-agents when needed |
-| **mission-control** | Tracks tasks, progress, and completed items |
-| **communication** | Manages interaction protocols |
-| **permission** | Handles authority and approval logic |
-| **display-stats** | Shows real-time metrics and performance |
-
-### Base Capabilities (Pi Agent)
-
-- All default Pi Agent tools
-- Shell access and command execution
-- File operations (read, write, edit, search)
-- Git operations
-- Terminal interaction
-
-## Setup
-
-### Prerequisites
-
-- macOS or Linux
-- Node.js >= 22.19.0
-- API keys for your preferred LLM provider
-
-### Installation
+## Running
 
 ```bash
-# Clone the repository
-git clone https://github.com/rishi-ie/general-v1.git
-cd general-v1
-
-# Navigate to meta-agent
 cd meta-agent
-
-# Copy and configure API keys
 cp meta-agent-config/auth.json.example meta-agent-config/auth.json
-# Edit auth.json with your API keys (anthropic, openai, google, etc.)
-
-# Run the employee
+# Add your API keys
 ./run.sh
 ```
 
-### Configuration
+## Creating Domain Employees
 
-Edit `meta-agent-config/config.json` to customize which components are loaded:
-
-```json
-{
-  "extensions": [
-    "extensions/mem0.ts",
-    "extensions/sub-agent-context.ts",
-    "extensions/mission-control.ts",
-    "extensions/communication.ts",
-    "extensions/permission.ts",
-    "extensions/display-stats.ts"
-  ],
-  "skills": [
-    "skills/constitutions/...",
-    "skills/personas/...",
-    "skills/planning/...",
-    "skills/mission-control/...",
-    "skills/rules/...",
-    "skills/browser/...",
-    "skills/communication/...",
-    "skills/permission/...",
-    "skills/docs/..."
-  ],
-  "prompts": [
-    "prompts/..."
-  ]
-}
-```
-
-## Usage
-
-After setup, simply run:
+General V1 is the base. To create a domain employee:
 
 ```bash
-cd meta-agent
-./run.sh
+# Example: Software Employee
+cp -r meta-agent meta-agent-configs/software-v1
+# Add software-specific skills, extensions, prompts
+# Update config.json
+./run.sh --config meta-agent-configs/software-v1/config.json
 ```
-
-The digital employee will:
-1. Load all configured skills and extensions
-2. Initialize memory and mission control
-3. Present itself with a generative identity
-4. Await your instructions
-
-### Example Interactions
-
-- **"I need to research competitors in the fintech space"** → Uses browser skill to research, mem0 to remember findings
-- **"Track this task: redesign the landing page"** → Creates ticket in mission control, tracks progress
-- **"What have you accomplished today?"** → Reviews mission control logs, summarizes progress
-- **"Handle this with elevated permissions"** → Uses permission system for appropriate authority
-
-## Development
-
-### Adding New Skills
-
-Create a markdown file in the appropriate `skills/` subdirectory:
-
-```markdown
-# My New Skill
-
-## Purpose
-Description of what this skill does.
-
-## Guidelines
-- Specific guidance for this skill
-- Behavioral instructions
-```
-
-### Adding New Extensions
-
-Create a TypeScript file in `meta-agent-config/extensions/`:
-
-```typescript
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-
-export default function myExtension(pi: ExtensionAPI) {
-  pi.on("before_agent_start", async (event, ctx) => {
-    // Your logic here
-  });
-}
-```
-
-## Roadmap
-
-- [ ] **v1** — Core framework with all listed components
-- [ ] **v2** — Feedback learning system activation
-- [ ] **v3** — Advanced sub-agent orchestration
-- [ ] **v4** — Multi-modal capabilities
 
 ## Related
 
-- [Meta Agent](https://github.com/rishi-ie/meta-agent) — Framework this is built on
-- [Pi Agent](https://github.com/earendil-works/pi) — Base terminal coding harness
-- [Pi Extensions](https://pi.dev) — Extension documentation
-
-## License
-
-MIT
+- [Meta Agent](./meta-agent/README.md) — Framework this is built on
+- [Pi Agent](https://github.com/earendil-works/pi) — Runtime execution engine
