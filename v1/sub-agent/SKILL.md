@@ -1,130 +1,162 @@
 ---
-name: sub-agent
-description: Spawns and manages sub-agents for parallel or specialized task execution. Use when a task can be broken into independent parts, or when specialized knowledge is needed for a subtask.
+name: sub-agents
+description: Spawn and manage sub-agents for parallel or specialized task execution. Use when a task can be broken into independent parts, when specialized knowledge is needed, or when multiple research directions need exploration. Built on @tintinweb/pi-subagents.
 ---
 
-# Sub-Agent
+# Sub-Agents
 
-Spawns sub-agents to handle independent tasks in parallel or with specialized focus.
+Spawn specialized sub-agents that run in isolated sessions — each with its own tools, system prompt, model, and thinking level.
 
 ## When to Use Sub-Agents
 
-**Use sub-agents when:**
+**Use when:**
 - A task has independent subtasks that can run simultaneously
 - Specialized knowledge is needed for a portion of work
+- Multiple research directions need exploration
 - A long-running task can be decomposed
-- Multiple research directions need exploration at once
 
-**Don't use sub-agents when:**
+**Don't use when:**
 - Tasks are sequential and depend on each other
-- The overhead of coordination exceeds the benefit
-- Simple, quick tasks that the main agent can handle
+- Simple, quick tasks the main agent can handle
+- Coordination overhead exceeds the benefit
 
-## Sub-Agent Patterns
+## Available Agent Types
 
-### Parallel Execution
+| Type | Tools | Model | When to use |
+|------|-------|-------|-------------|
+| `general-purpose` | All | Inherit | Parent twin, follows same rules |
+| `Explore` | read, bash, grep, find, ls | haiku | Fast codebase search |
+| `Plan` | read, bash, grep, find, ls | Inherit | Software architecture planning |
+| `research` | read, grep, find, ls, bash | Inherit | Deep research tasks |
+| `writer` | read, write, edit, grep, find, ls | Inherit | Documentation creation |
+| `debugger` | read, bash, grep, find, ls | Inherit | Systematic debugging |
 
-When multiple independent tasks exist:
+## Spawning Sub-Agents
+
+### Basic Spawn (Foreground)
+
 ```
-Main agent: Breaks task into subtasks
-Sub-agent 1: Handles subtask A
-Sub-agent 2: Handles subtask B
-Sub-agent 3: Handles subtask C
-Main agent: Aggregates results
-```
-
-### Specialized Focus
-
-When a subtask needs specialized knowledge:
-```
-Main agent: Identifies specialized need
-Sub-agent [domain]: Handles specialized portion
-Main agent: Integrates specialized work
-```
-
-### Research Branches
-
-When exploring multiple options:
-```
-Main agent: Defines research scope
-Sub-agent 1: Research option A
-Sub-agent 2: Research option B
-Sub-agent 3: Research option C
-Main agent: Compares and decides
+Agent({
+  subagent_type: "Explore",
+  prompt: "Find all files related to authentication",
+  description: "Find auth files"
+})
 ```
 
-## Commands
+### Background Spawn
 
-| Command | When to use |
-|---------|-------------|
-| `/subagent new <task description>` | Spawn a new sub-agent |
-| `/subagent list` | List active sub-agents |
-| `/subagent status <id>` | Check sub-agent status |
-| `/subagent kill <id>` | Terminate a sub-agent |
-| `/subagent results <id>` | Get sub-agent results |
+```
+Agent({
+  subagent_type: "research",
+  prompt: "Research competitor pricing for fintech apps",
+  description: "Competitor research",
+  run_in_background: true
+})
+```
 
-## Sub-Agent Lifecycle
+### With Model Selection
 
-1. **Spawn** — Create with task description
-2. **Run** — Sub-agent executes independently
-3. **Report** — Sub-agent returns results
-4. **Integrate** — Main agent uses results
-5. **Close** — Sub-agent completes or is terminated
+```
+Agent({
+  subagent_type: "Explore",
+  prompt: "Analyze the database schema",
+  description: "DB schema analysis",
+  model: "anthropic/claude-sonnet-4-6"
+})
+```
+
+### With Custom Settings
+
+```
+Agent({
+  subagent_type: "debugger",
+  prompt: "Debug the login issue",
+  description: "Login debugging",
+  thinking: "high",
+  max_turns: 30
+})
+```
+
+## Managing Sub-Agents
+
+### List Active Agents
+```
+/agents
+```
+
+### Get Results
+```
+get_subagent_result({ agent_id: "abc123" })
+```
+
+### Wait for Completion
+```
+get_subagent_result({ agent_id: "abc123", wait: true })
+```
+
+### Steering a Running Agent
+```
+steer_subagent({
+  agent_id: "abc123",
+  message: "Focus on the auth module instead"
+})
+```
 
 ## Best Practices
 
 ### Task Definition
+- Be clear and specific in prompts
+- Define success criteria
+- Set appropriate max_turns
 
-- Clear, focused task description
-- Specific success criteria
-- Appropriate scope (not too large, not too small)
+### Parallel Execution
+- Spawn independent tasks simultaneously
+- Use background mode for longer tasks
+- Max concurrent: 4 (configurable)
 
-### Result Handling
-
+### Result Collection
 - Always collect and integrate results
-- Handle sub-agent failures gracefully
-- Report sub-agent outputs to user
+- Handle partial results gracefully
+- Report outputs to user
 
 ### Resource Management
+- Don't spawn excessive agents
+- Set appropriate turn limits
+- Use read-only agents when possible
 
-- Don't spawn excessive sub-agents (max 3-5)
-- Terminate sub-agents when done
-- Monitor sub-agent status
+## Custom Agent Types
 
-## Examples
+Create custom agents in `.pi/agents/<name>.md`:
 
-**Parallel research:**
-```
-/subagent new "Research competitor A's pricing model"
-/subagent new "Research competitor B's pricing model"
-/subagent new "Research competitor C's pricing model"
-```
+```yaml
+---
+description: My Custom Agent
+tools: read, bash, grep
+model: inherit
+thinking: medium
+max_turns: 20
+---
 
-**Specialized implementation:**
-```
-/subagent new "Implement database schema for user auth"
-```
-
-**Complex task decomposition:**
-```
-Main breaks down:
-- Sub-agent: Frontend components
-- Sub-agent: Backend API
-- Sub-agent: Database schema
-- Main: Integration and testing
+Your agent prompt goes here.
 ```
 
 ## Relationship to Other Modules
 
 | Module | Sub-agent integration |
-|--------|----------------------|
+|--------|---------------------|
 | Planning | Sub-agents can create plan files |
 | Mission Control | Sub-agents update tickets |
 | Mem0 | Sub-agents can store/recall memories |
 | Browser | Sub-agents can do research |
 
-## Limitations
+## Configuration
 
-- Sub-agents share the same context window limitations
-- Coordination overhead for dependent tasks
-- Results must be explicitly retrieved
+Settings persist in:
+- Global: `~/.pi/agent/subagents.json`
+- Project: `<cwd>/.pi/subagents.json`
+
+Configurable options:
+- `maxConcurrent` - Max parallel agents (default: 4)
+- `graceTurns` - Graceful shutdown turns (default: 5)
+- Default max turns per agent type
+- Join mode (smart/async/group)
