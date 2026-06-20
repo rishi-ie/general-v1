@@ -1,0 +1,30 @@
+# Browser Configuration
+
+# Path where browser profiles are stored
+# Default: ~/.config/v1/browser-profiles
+profile_path: "~/.config/v1/browser-profiles"
+
+# Browser display mode
+# true = headless (no visible browser window)
+# false = visible browser window
+headless: false
+
+# LLM model to use for browser agent
+# Should be a model that supports function calling
+model: "claude-sonnet-4-6"
+
+# Model provider
+# Options: anthropic, openai, google, etc.
+provider: "anthropic"
+
+# Browser settings
+browser:
+  # Window size
+  width: 1280
+  height: 720
+
+  # Maximum time to wait for page load (seconds)
+  page_load_timeout: 30
+
+  # Whether to enable recording
+  enable_recording: false

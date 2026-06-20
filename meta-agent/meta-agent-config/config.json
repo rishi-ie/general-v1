@@ -1,11 +1,14 @@
 {
   "extensions": [
+    "extensions/planning-with-files",
     "extensions/model-router.ts",
     "extensions/memory.ts",
     "extensions/context-manager.ts",
     "extensions/persona.ts"
   ],
   "skills": [
+    "skills/planning-with-files.md",
+    "skills/browser.md",
     "skills/constitutions/00-CONSTITUTION.md",
     "skills/personas/10-PERSONA.md"
   ],

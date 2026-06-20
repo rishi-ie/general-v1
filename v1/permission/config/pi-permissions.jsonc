@@ -1,0 +1,152 @@
+{
+  // Default permission policy for General V1
+  // Copy to ~/.pi/agent/pi-permissions.jsonc
+
+  "defaultPolicy": {
+    "tools": "ask",
+    "bash": "ask",
+    "mcp": "ask",
+    "skills": "ask",
+    "special": "ask"
+  },
+
+  "tools": {
+    "read": "allow",
+    "write": "ask",
+    "edit": "ask",
+    "grep": "allow",
+    "find": "allow",
+    "ls": "allow",
+    "bash": "ask",
+    "task": "ask"
+  },
+
+  "bash": {
+    // Safe read-only commands
+    "git status": "allow",
+    "git diff": "allow",
+    "git diff --staged": "allow",
+    "git log *": "allow",
+    "git show *": "allow",
+    "git branch *": "allow",
+    "git remote -v": "allow",
+    "git remote show *": "allow",
+    "git fetch *": "allow",
+
+    // Package managers
+    "npm *": "allow",
+    "npx *": "allow",
+    "pnpm *": "allow",
+    "yarn *": "allow",
+    "node *": "allow",
+
+    // Safe shell commands
+    "ls *": "allow",
+    "pwd": "allow",
+    "echo *": "allow",
+    "cat *": "allow",
+    "head *": "allow",
+    "tail *": "allow",
+    "wc *": "allow",
+    "mkdir -p *": "allow",
+    "mkdir *": "allow",
+    "touch *": "allow",
+    "cp *": "allow",
+    "mv *": "allow",
+    "diff *": "allow",
+    "find *": "allow",
+    "which *": "allow",
+    "type *": "allow",
+    "file *": "allow",
+    "stat *": "allow",
+    "cd *": "allow",
+
+    // Development tools
+    "cargo *": "allow",
+    "rustc *": "allow",
+    "go *": "allow",
+    "python *": "allow",
+    "python3 *": "allow",
+    "pip *": "allow",
+    "pip3 *": "allow",
+    "uv *": "allow",
+    "bun *": "allow",
+    "deno *": "allow",
+    "ruby *": "allow",
+    "make *": "allow",
+    "cmake *": "allow",
+    "docker build *": "allow",
+    "docker images": "allow",
+    "docker ps": "allow",
+
+    // Git operations that need confirmation
+    "git add *": "ask",
+    "git restore *": "ask",
+    "git checkout *": "ask",
+    "git commit *": "ask",
+    "git reset *": "ask",
+    "git revert *": "ask",
+    "git merge *": "ask",
+    "git rebase *": "ask",
+    "git stash *": "ask",
+    "git push *": "ask",
+    "git pull *": "ask",
+    "git clone *": "ask",
+
+    // Potentially dangerous
+    "curl *": "ask",
+    "wget *": "ask",
+    "sudo *": "ask",
+    "chmod *": "ask",
+    "chown *": "ask",
+
+    // Network tools
+    "ping *": "ask",
+    "nc *": "ask",
+    "netstat *": "ask",
+    "ssh *": "ask",
+    "scp *": "ask",
+    "rsync *": "ask",
+
+    // Process management
+    "kill *": "ask",
+    "pkill *": "ask",
+    "killall *": "ask",
+    "htop": "ask",
+    "top": "ask",
+    "ps *": "ask",
+
+    // System changes
+    "shutdown *": "deny",
+    "reboot *": "deny",
+    "halt *": "deny",
+    "init *": "deny",
+    "systemctl *": "ask",
+    "service *": "ask",
+
+    // Destructive — always deny
+    "rm -rf *": "deny",
+    "rm -r *": "deny",
+    "rm -f *": "deny",
+    "dd *": "deny",
+    "mkfs *": "deny",
+    "fdisk *": "deny",
+    "parted *": "deny",
+
+    // Wildcard fallback
+    "*": "ask"
+  },
+
+  "mcp": {
+    "*": "ask"
+  },
+
+  "skills": {
+    "*": "ask"
+  },
+
+  "special": {
+    "doom_loop": "deny",
+    "external_directory": "ask"
+  }
+}
