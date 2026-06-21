@@ -1,0 +1,33 @@
+{
+  "name": "@general-v1/superhive",
+  "version": "0.1.0",
+  "description": "Host-side orchestrator for SuperHive — manages and coordinates a fleet of General V1 agents.",
+  "type": "extension",
+  "main": "extensions/superhive/index.ts",
+  "pi": {
+    "version": ">=0.1.0"
+  },
+  "permissions": [
+    "network:server",
+    "network:client",
+    "filesystem:userdir"
+  ],
+  "dependencies": {
+    "ws": "^8.18.0",
+    "ajv": "^8.17.0",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "pi-agent",
+    "agent-orchestration",
+    "multi-agent",
+    "superhive"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -1,0 +1,49 @@
+{
+  "name": "communication",
+  "version": "0.1.0",
+  "description": "SuperHive bridge — connects this agent to the SuperHive host orchestrator.",
+  "capabilities": [
+    "websocket-client",
+    "superhive-bridge",
+    "inter-agent-messaging",
+    "settings-sync",
+    "permission-requests",
+    "authority-grants"
+  ],
+  "settingsSchema": {
+    "type": "object",
+    "properties": {
+      "host": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "format": "uri" },
+          "apiKey": { "type": "string" }
+        },
+        "required": ["url"]
+      },
+      "reconnect": {
+        "type": "object",
+        "properties": {
+          "maxAttempts": { "type": "number" },
+          "backoffMs": { "type": "array", "items": { "type": "number" } }
+        }
+      },
+      "heartbeatIntervalMs": { "type": "number", "default": 15000 },
+      "permissions": {
+        "type": "object",
+        "properties": {
+          "requireSuperhiveApproval": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "required": ["host"]
+  },
+  "interAgent": {
+    "acceptsDMs": true,
+    "acceptsBroadcasts": true,
+    "groups": ["general", "software", "research"]
+  }
+}

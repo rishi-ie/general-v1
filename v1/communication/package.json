@@ -1,0 +1,28 @@
+{
+  "name": "@general-v1/communication",
+  "version": "0.1.0",
+  "description": "SuperHive bridge — connects General V1 to the SuperHive host for control plane, inter-agent messaging, and settings sync.",
+  "type": "extension",
+  "main": "extensions/communication/index.ts",
+  "pi": {
+    "version": ">=0.1.0"
+  },
+  "permissions": [
+    "network:client"
+  ],
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "pi-agent",
+    "superhive",
+    "agent-communication"
+  ],
+  "author": "",
+  "license": "MIT"
+}

@@ -21,9 +21,8 @@ You (builder)
                                     ├── mem0/                  ✅ (@mem0/pi-agent-plugin)
                                     ├── mission-control/       ✅ Complete
                                     ├── permission/            ✅ (pi-permission-system)
-                                    ├── sub-agent/            ✅ (@tintinweb/pi-subagents)
-                                    ├── communication/         🔧 Needs planning
-                                    ├── display-stats/         🔧 Needs planning
+                                    ├── sub-agent/            ✅ (nicobailon/pi-subagents)
+                                    ├── communication/         ✅ Complete (SuperHive bridge)
                                     └── sub-agent-context/     🔧 Needs planning
 ```
 
@@ -39,9 +38,8 @@ You (builder)
 | `mission-control/` | Extension + Skill | ✅ | Ticket tracking with LLM auto-capture |
 | `permission/` | Skill + Config | ✅ | Authority levels via pi-permission-system |
 | `sub-agent/` | Extension + Skill | ✅ | Sub-agent spawning via @tintinwork/pi-subagents |
-| `communication/` | Skill | 🔧 | Interaction protocols — needs planning |
-| `display-stats/` | Skill | 🔧 | Real-time metrics — needs planning |
-| `sub-agent-context/` | Extension + Skill | 🔧 | Cognitive layer — needs planning |
+| `communication/` | Extension + Skill | ✅ | SuperHive bridge — control plane, settings sync, inter-agent messaging |
+| `sub-agent-context/` | Extension + Skill | 🔧 | Cognitive layer — meta memory, decisions, goals, relationships |
 
 ## How It Works
 
@@ -56,7 +54,11 @@ You (builder)
 |--------|---------|--------|
 | mem0 | @mem0/pi-agent-plugin | npm (pi install) |
 | permission | pi-permission-system | npm (pi install) |
-| sub-agent | @tintinweb/pi-subagents | Cloned locally |
+| sub-agent | nicobailon/pi-subagents | Copied locally |
+| communication | ws | npm (pi install) |
+| superhive | ws, ajv | npm (pi install) |
+
+**Note**: `display-stats/` is obsolete — its purpose (real-time metrics) is handled by `communication/` streaming `AGENT_STATE` to the SuperHive UI.
 
 ## Running
 
@@ -85,4 +87,4 @@ cp -r meta-agent meta-agent-configs/software-v1
 - [Pi Agent](https://github.com/earendil-works/pi) — Runtime execution engine
 - [@mem0/pi-agent-plugin](https://github.com/mem0ai/mem0/tree/main/integrations/pi-agent-plugin) — Mem0 integration
 - [pi-permission-system](https://github.com/MasuRii/pi-permission-system) — Permission enforcement
-- [@tintinweb/pi-subagents](https://github.com/tintinweb/pi-subagents) — Sub-agent spawning
+- [nicobailon/pi-subagents](https://github.com/nicobailon/pi-subagents) — Sub-agent spawning

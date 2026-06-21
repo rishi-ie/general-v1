@@ -1,0 +1,53 @@
+{
+  "name": "sub-agent",
+  "version": "0.1.0",
+  "description": "Sub-agent delegation — spawn, chain, and parallelize focused child agents.",
+  "capabilities": [
+    "subagent-delegation",
+    "parallel-execution",
+    "chain-workflows",
+    "background-runs",
+    "custom-agents"
+  ],
+  "settingsSchema": {
+    "type": "object",
+    "properties": {
+      "maxConcurrent": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 10,
+        "default": 4,
+        "description": "Maximum number of parallel sub-agents"
+      },
+      "defaultContext": {
+        "type": "string",
+        "enum": ["fork", "fresh"],
+        "default": "fork",
+        "description": "Default context mode for spawned agents"
+      },
+      "agentDefaults": {
+        "type": "object",
+        "description": "Per-agent default settings",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "model": { "type": "string" },
+            "thinking": { "type": "string", "enum": ["low", "medium", "high"] }
+          }
+        }
+      },
+      "asyncByDefault": {
+        "type": "boolean",
+        "default": false,
+        "description": "Run agents in background by default"
+      },
+      "maxSubagentDepth": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 3,
+        "default": 1,
+        "description": "Maximum nesting depth for sub-agents"
+      }
+    }
+  }
+}

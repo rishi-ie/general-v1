@@ -1,0 +1,19 @@
+{
+  "host": {
+    "url": "ws://127.0.0.1:7711",
+    "apiKey": ""
+  },
+  "reconnect": {
+    "maxAttempts": -1,
+    "backoffMs": [500, 1000, 5000, 30000]
+  },
+  "heartbeatIntervalMs": 15000,
+  "permissions": {
+    "requireSuperhiveApproval": [
+      "file_delete",
+      "command_execute",
+      "sub_agent_spawn",
+      "network_request"
+    ]
+  }
+}

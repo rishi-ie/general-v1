@@ -1,0 +1,12 @@
+{
+  "maxConcurrent": 4,
+  "defaultContext": "fork",
+  "agentDefaults": {
+    "research": { "model": "inherit", "thinking": "high" },
+    "writer": { "model": "inherit", "thinking": "medium" },
+    "debugger": { "model": "inherit", "thinking": "high" },
+    "auditor": { "model": "inherit", "thinking": "high" }
+  },
+  "asyncByDefault": false,
+  "maxSubagentDepth": 1
+}

@@ -1,0 +1,18 @@
+{
+  "name": "@general-v1/sub-agent",
+  "version": "0.1.0",
+  "description": "Sub-agent delegation for General V1 — spawn, chain, and parallelize focused child agents.",
+  "type": "extension",
+  "main": "src/src/extension/index.ts",
+  "pi": {
+    "version": ">=0.1.0"
+  },
+  "dependencies": {
+    "@earendil-works/pi-tui": "^0.74.0",
+    "jiti": "^2.7.0",
+    "typebox": "^1.1.24"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}
