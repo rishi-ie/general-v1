@@ -8,6 +8,14 @@ CONFIG_DIR="$SCRIPT_DIR/meta-agent-config"
 PI_DIR="$SCRIPT_DIR/pi"
 LOCAL_PI_DIR="$SCRIPT_DIR/.pi"
 
+# Run setup if needed (safe to run every time)
+if [ ! -f "$SCRIPT_DIR/.setup-complete" ]; then
+    echo "[run] Running first-time setup..."
+    "$SCRIPT_DIR/setup.sh"
+    touch "$SCRIPT_DIR/.setup-complete"
+    echo "[run] Setup complete."
+fi
+
 # Check if pi directory exists, clone if missing
 if [ ! -d "$PI_DIR" ]; then
     echo "Cloning Pi Agent..."
@@ -17,7 +25,7 @@ fi
 # Check if node_modules exists, install if missing
 if [ ! -d "$PI_DIR/node_modules" ]; then
     echo "Installing Pi Agent dependencies..."
-    cd "$PI_DIR" && npm install
+    cd "$PI_DIR" && npm install --ignore-scripts
 fi
 
 # Go back to script directory

@@ -31,4 +31,8 @@ contextBridge.exposeInMainWorld('superhive', {
   restartAgent: () => {
     ipcRenderer.send('agent:restart');
   },
+
+  getApiKey: (): Promise<string | null> => ipcRenderer.invoke('api-key:get'),
+
+  setApiKey: (key: string): Promise<boolean> => ipcRenderer.invoke('api-key:set', key),
 });

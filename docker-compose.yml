@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  superhive:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: superhive
+    environment:
+      - SUPERHIVE_API_KEY=${SUPERHIVE_API_KEY:-}
+      - SUPERHIVE_PUBLIC_PORT=7711
+      - SUPERHIVE_MODE=localhost
+      - SUPERHIVE_LOG_LEVEL=info
+      - AGENT_MODEL=${AGENT_MODEL:-claude-sonnet-4-5}
+    volumes:
+      - ./pi:/app/pi:ro
+      - superhive-data:/root/.superhive
+      - ./agents.json:/app/agents.json:ro
+    ports:
+      - "7711:7711"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:7711/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  superhive-data:
+    driver: local

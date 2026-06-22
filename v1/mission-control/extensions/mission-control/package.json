@@ -1,13 +1,10 @@
 {
-  "name": "@general-v1/mission-control",
+  "name": "@general-v1/mission-control-ext",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*"
   }

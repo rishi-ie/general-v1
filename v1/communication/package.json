@@ -5,7 +5,8 @@
   "type": "extension",
   "main": "extensions/communication/index.ts",
   "pi": {
-    "version": ">=0.1.0"
+    "version": ">=0.1.0",
+    "extensions": ["./extensions/communication/index.ts"]
   },
   "permissions": [
     "network:client"

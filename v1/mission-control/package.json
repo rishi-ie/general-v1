@@ -1,0 +1,15 @@
+{
+  "name": "@general-v1/mission-control",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mission control — file-based ticket tracking for Pi Agent.",
+  "pi": {
+    "version": ">=0.1.0",
+    "extensions": ["./extensions/mission-control/index.ts"],
+    "skills": ["./SKILL.md"]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  }
+}

@@ -1,0 +1,24 @@
+[
+  {
+    "name": "general",
+    "type": "general",
+    "enabled": true,
+    "cwd": "/root",
+    "env": {
+      "SUPERHIVE_WS_URL": "ws://127.0.0.1:7711",
+      "AGENT_MODEL": "claude-sonnet-4-5",
+      "AGENT_MODEL_QUICK": "claude-haiku-4-5",
+      "AGENT_MODEL_REASONING": "claude-sonnet-4-5",
+      "AGENT_MODEL_STRONG": "claude-opus-4-1"
+    },
+    "config": {
+      "metaAgentConfig": "/app/meta-agent/meta-agent-config/config.json",
+      "piDir": "/app/pi"
+    },
+    "identity": {
+      "name": "general",
+      "role": "digital-employee",
+      "type": "general"
+    }
+  }
+]

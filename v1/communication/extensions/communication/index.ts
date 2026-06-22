@@ -33,12 +33,13 @@ function log(msg: string, data?: Record<string, unknown>): void {
 }
 
 async function loadConfig(): Promise<WsConfig> {
+  const envApiKey = process.env.SUPERHIVE_API_KEY;
   try {
     const raw = await fs.readFile(path.join(DATA_DIR, 'config.json'), 'utf-8');
     const cfg = JSON.parse(raw);
     return {
       url: cfg.host?.url ?? 'ws://127.0.0.1:7711',
-      apiKey: cfg.host?.apiKey ?? '',
+      apiKey: envApiKey ?? cfg.host?.apiKey ?? '',
       heartbeatIntervalMs: cfg.heartbeatIntervalMs ?? 15000,
       reconnect: {
         maxAttempts: cfg.reconnect?.maxAttempts ?? -1,
@@ -48,6 +49,7 @@ async function loadConfig(): Promise<WsConfig> {
   } catch {
     return {
       url: 'ws://127.0.0.1:7711',
+      apiKey: envApiKey ?? '',
       heartbeatIntervalMs: 15000,
       reconnect: {
         maxAttempts: -1,

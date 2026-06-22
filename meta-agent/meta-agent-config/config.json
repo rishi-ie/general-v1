@@ -1,21 +1,53 @@
 {
   "extensions": [
     "extensions/planning-with-files",
+
+    "v1/mission-control/extensions/mission-control/index.ts",
+    "v1/sub-agent/src/src/extension/index.ts",
+    "v1/sub-agent-context/extensions/sac/index.ts",
+    "v1/communication/extensions/communication/index.ts",
+    "v1/superhive/extensions/superhive/index.ts",
+
+    "extensions/mem0-extension.ts",
+    "extensions/permission-extension.ts",
+
     "extensions/model-router.ts",
     "extensions/memory.ts",
     "extensions/context-manager.ts",
-    "extensions/persona.ts"
+    "extensions/persona.ts",
+
+    "v1/integrations/mc-sac.ts",
+    "v1/integrations/planning-mc.ts",
+    "v1/integrations/sac-subagent.ts",
+    "v1/integrations/comm-perm.ts",
+    "v1/integrations/comm-subagent.ts",
+    "v1/integrations/comm-planning.ts"
   ],
   "skills": [
+    "skills/constitutions/00-CONSTITUTION-general.md",
+    "skills/personas/10-PERSONA-general.md",
+
+    "v1/identity/SKILL.md",
+    "v1/docs/SKILL.md",
+    "v1/planning/SKILL.md",
+    "v1/browser/SKILL.md",
+    "v1/mission-control/SKILL.md",
+    "v1/sub-agent/SKILL.md",
+    "v1/sub-agent-context/SKILL.md",
+    "v1/communication/SKILL.md",
+
     "skills/planning-with-files.md",
-    "skills/browser.md",
-    "skills/constitutions/00-CONSTITUTION.md",
-    "skills/personas/10-PERSONA.md"
+    "skills/browser.md"
   ],
   "prompts": [
     "prompts/extra-instructions.md"
   ],
   "model": {
-    "primary": "claude-sonnet"
+    "primary": "claude-sonnet-4-5",
+    "routing": {
+      "quick": "claude-haiku-4-5",
+      "reasoning": "claude-sonnet-4-5",
+      "strong": "claude-opus-4-1"
+    }
   }
 }

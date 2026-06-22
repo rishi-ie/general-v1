@@ -5,7 +5,9 @@
   "type": "extension",
   "main": "src/src/extension/index.ts",
   "pi": {
-    "version": ">=0.1.0"
+    "version": ">=0.1.0",
+    "extensions": ["./src/src/extension/index.ts"],
+    "skills": ["./SKILL.md"]
   },
   "dependencies": {
     "@earendil-works/pi-tui": "^0.74.0",

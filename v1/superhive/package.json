@@ -5,7 +5,8 @@
   "type": "extension",
   "main": "extensions/superhive/index.ts",
   "pi": {
-    "version": ">=0.1.0"
+    "version": ">=0.1.0",
+    "extensions": ["./extensions/superhive/index.ts"]
   },
   "permissions": [
     "network:server",

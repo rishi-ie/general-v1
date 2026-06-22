@@ -1,7 +1,8 @@
-import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage } from 'electron';
+import { app, BrowserWindow, ipcMain, Menu, safeStorage } from 'electron';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import { WebSocketServer as WSS, WebSocket } from 'ws';
+import * as fs from 'fs';
 import * as os from 'os';
 
 let mainWindow: BrowserWindow | null = null;
@@ -10,6 +11,29 @@ let rendererServer: { port: number; close: () => void } | null = null;
 let rendererClients = new Set<WebSocket>();
 const INTERNAL_PORT = 7712;
 const SUPERHIVE_EXT_PATH = path.join(__dirname, '../../extensions/superhive');
+const API_KEY_PATH = path.join(app.getPath('userData'), 'api_key.enc');
+
+function loadApiKey(): string | null {
+  if (process.env.SUPERHIVE_API_KEY) {
+    return process.env.SUPERHIVE_API_KEY;
+  }
+  try {
+    if (fs.existsSync(API_KEY_PATH) && safeStorage.isEncryptionAvailable()) {
+      const encrypted = fs.readFileSync(API_KEY_PATH);
+      return safeStorage.decryptString(encrypted);
+    }
+  } catch {}
+  return null;
+}
+
+function saveApiKey(key: string): void {
+  try {
+    if (safeStorage.isEncryptionAvailable()) {
+      const encrypted = safeStorage.encryptString(key);
+      fs.writeFileSync(API_KEY_PATH, encrypted);
+    }
+  } catch {}
+}
 
 async function startRendererServer(): Promise<{ port: number; close: () => void }> {
   return new Promise((resolve) => {
@@ -149,6 +173,19 @@ ipcMain.handle('superhive:send', (_event, msg) => {
       ws.send(data);
     }
   }
+});
+
+ipcMain.handle('api-key:get', () => {
+  return loadApiKey();
+});
+
+ipcMain.handle('api-key:set', (_event, key: string) => {
+  saveApiKey(key);
+  return true;
+});
+
+ipcMain.on('agent:restart', () => {
+  restartAgent();
 });
 
 app.whenReady().then(async () => {

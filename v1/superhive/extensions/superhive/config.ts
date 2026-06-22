@@ -58,6 +58,12 @@ function applyEnvOverrides(cfg: SuperhiveConfig): SuperhiveConfig {
   if (process.env.SUPERHIVE_AUTH_REQUIRED) {
     cfg.auth.required = process.env.SUPERHIVE_AUTH_REQUIRED === 'true';
   }
+  if (process.env.SUPERHIVE_API_KEY) {
+    cfg.auth.required = true;
+    cfg.auth.staticKeys = {
+      [process.env.SUPERHIVE_API_KEY]: { name: 'default-key', scopes: ['full'] },
+    };
+  }
   return cfg;
 }
 
