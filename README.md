@@ -23,7 +23,7 @@ You (builder)
                                     ├── permission/            ✅ (pi-permission-system)
                                     ├── sub-agent/            ✅ (nicobailon/pi-subagents)
                                     ├── communication/         ✅ Complete (SuperHive bridge)
-                                    └── sub-agent-context/     🔧 Needs planning
+                                    └── sub-agent-context/     ✅ Complete
 ```
 
 ## Modules
@@ -39,7 +39,7 @@ You (builder)
 | `permission/` | Skill + Config | ✅ | Authority levels via pi-permission-system |
 | `sub-agent/` | Extension + Skill | ✅ | Sub-agent spawning via @tintinwork/pi-subagents |
 | `communication/` | Extension + Skill | ✅ | SuperHive bridge — control plane, settings sync, inter-agent messaging |
-| `sub-agent-context/` | Extension + Skill | 🔧 | Cognitive layer — meta memory, decisions, goals, relationships |
+| `sub-agent-context/` | Extension + Skill | ✅ | Cognitive layer — persistent memory, decisions, goals, lineage |
 
 ## How It Works
 
@@ -55,6 +55,7 @@ You (builder)
 | mem0 | @mem0/pi-agent-plugin | npm (pi install) |
 | permission | pi-permission-system | npm (pi install) |
 | sub-agent | nicobailon/pi-subagents | Copied locally |
+| sub-agent-context | ulid | npm (pi install) |
 | communication | ws | npm (pi install) |
 | superhive | ws, ajv | npm (pi install) |
 

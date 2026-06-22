@@ -1,0 +1,31 @@
+{
+  "name": "@general-v1/sub-agent-context",
+  "version": "0.1.0",
+  "description": "Sub-Agent Context — persistent cognitive layer for Pi Agent. Provides long-term memory, context lineage, goal continuity, and decision tracking.",
+  "type": "extension",
+  "main": "extensions/sac/index.ts",
+  "pi": {
+    "version": ">=0.1.0",
+    "extensions": ["./extensions/sac/index.ts"]
+  },
+  "dependencies": {
+    "ulid": "^1.1.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": ">=0.74.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "keywords": [
+    "pi-agent",
+    "cognitive",
+    "memory",
+    "context",
+    "lineage",
+    "sub-agent"
+  ],
+  "author": "",
+  "license": "MIT"
+}
