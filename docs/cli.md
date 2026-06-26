@@ -74,6 +74,17 @@ Provider auto-detection order: minimax, anthropic, google, openai, deepseek, gro
 /permission status         Show active grants and pending requests
 ```
 
+### Semantic Memory (LanceDB)
+
+```
+/semantic-search <query>           Search semantic memory (vector + keyword)
+/semantic-search --source decision <query>  Filter by source type
+/semantic-add <text>               Add a fact to semantic memory
+/semantic-tour [--limit N]         Browse all indexed records
+/semantic-status                    Show index counts and provider
+/semantic-forget <query>           Delete matching records
+```
+
 ### Sub-Agents
 
 ```

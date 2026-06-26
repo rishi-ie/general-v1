@@ -27,8 +27,8 @@ SAC Extension
     ├── Lineage Engine
     ├── Retrieval Pipeline
     └── Snapshot Service
-    ↓
-Storage (~/.general-v1/sac/)
+    ↓                             → LanceDB Extension (optional)
+Storage (~/.general-v1/sac/)          ~/.general-v1/vectors/
 ```
 
 ## Installation

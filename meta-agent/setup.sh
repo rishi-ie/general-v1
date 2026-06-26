@@ -25,6 +25,7 @@ ln -sf "$SCRIPT_DIR/../v1/sub-agent"     "$CONFIG_DIR/v1/sub-agent"
 ln -sf "$SCRIPT_DIR/../v1/sub-agent-context" "$CONFIG_DIR/v1/sub-agent-context"
 ln -sf "$SCRIPT_DIR/../v1/superhive"    "$CONFIG_DIR/v1/superhive"
 ln -sf "$SCRIPT_DIR/../v1/integrations"   "$CONFIG_DIR/v1/integrations"
+ln -sf "$SCRIPT_DIR/../v1/lancedb"         "$CONFIG_DIR/v1/lancedb"
 
 echo "[setup] Adding pi field to v1 package.json files missing it..."
 add_pi_field() {

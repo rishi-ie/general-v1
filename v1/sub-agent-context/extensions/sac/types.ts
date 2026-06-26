@@ -139,6 +139,19 @@ export interface SACConfig {
   maxRecentDecisions: number;
 }
 
+export interface SemanticHit {
+  id: string;
+  type: string;
+  title: string;
+  content: string;
+  source: string;
+  source_id: string;
+  project?: string;
+  session_id: string;
+  created_at: number;
+  score: number;
+}
+
 export interface RetrievalContext {
   question: string;
   meta_state?: MetaState;
@@ -146,6 +159,7 @@ export interface RetrievalContext {
   decisions?: Decision[];
   lineage_epochs?: Epoch[];
   recent_activity?: string;
+  semantic_hits?: SemanticHit[];
 }
 
 export interface ObservedEvent {

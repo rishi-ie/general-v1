@@ -1,0 +1,24 @@
+{
+  "storagePath": "~/.general-v1/vectors/",
+  "enabled": true,
+  "embedding": {
+    "provider": "auto",
+    "model": "auto",
+    "dimensions": 1536,
+    "maxRetries": 3,
+    "batchSize": 20,
+    "timeoutMs": 10000
+  },
+  "indexing": {
+    "decisions": true,
+    "epochs": true,
+    "agentResponses": true,
+    "toolResults": true,
+    "maxContentLength": 8000
+  },
+  "search": {
+    "defaultLimit": 10,
+    "minScore": 0.7,
+    "hybridWeight": 0.5
+  }
+}

@@ -19,6 +19,8 @@ supervisord.conf.local
 .meta-agent/.setup-complete
 .vscode/settings.json
 v1/*/*
+!v1/lancedb/
+!v1/lancedb/**
 v1/sub-agent/src/src/
 .mission-control/
 meta-agent/.setup-complete

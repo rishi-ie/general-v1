@@ -80,6 +80,7 @@ When uncertain about scope, safety, or correctness:
 |---|---|
 | `planning/` | Manus-style file-based task planning |
 | `browser/` | browser-use with persistent logged-in sessions |
+| `lancedb/` | Semantic memory with hybrid vector + full-text search |
 | `mission-control/` | File-based ticket tracking with auto-capture |
 | `permission/` | Tool/bash/skill access policy enforcement |
 | `sub-agent/` | Spawn specialized sub-agents |

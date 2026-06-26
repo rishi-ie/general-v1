@@ -13,7 +13,9 @@
     "v1/integrations/sac-subagent.ts",
     "v1/integrations/comm-perm.ts",
     "v1/integrations/comm-subagent.ts",
-    "v1/integrations/comm-planning.ts"
+    "v1/integrations/comm-planning.ts",
+    "v1/lancedb/extensions/lancedb/index.ts",
+    "v1/integrations/sac-lancedb.ts"
   ],
   "skills": [
     "skills/constitutions/00-CONSTITUTION-general.md",
@@ -26,6 +28,7 @@
     "v1/mission-control/SKILL.md",
     "v1/sub-agent/SKILL.md",
     "v1/sub-agent-context/SKILL.md",
+    "v1/lancedb/SKILL.md",
 
     "skills/planning-with-files.md",
     "skills/browser.md"

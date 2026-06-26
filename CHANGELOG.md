@@ -4,9 +4,13 @@ All notable changes to general v1 are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- **LanceDB module** (`v1/lancedb/`): Semantic memory layer using embedded LanceDB vector search. Provides hybrid vector + full-text search over indexed decisions, epochs, agent responses, and tool results. Auto-indexes SAC events when provider API is available (MiniMax, OpenAI, Anthropic, or Voyage). Exposes `/semantic-search`, `/semantic-add`, `/semantic-tour`, `/semantic-status`, `/semantic-forget` commands and a `semantic_search` tool callable by the LLM. Provider auto-detected from `MINIMAX_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `VOYAGE_API_KEY`. Online-only (disables gracefully in `--offline` mode).
+
 ### Removed
 
-- **mem0 module** (`v1/mem0/`): Long-term semantic memory module removed entirely. `Mem0Memory` type, `mem0Enabled` config, `mem0_memories` retrieval context, and all `searchMemories`/`addMemory`/`initMem0Bridge` calls removed from SAC. Agent no longer has a persistent semantic memory layer.
+- **mem0 module** (`v1/mem0/`): Long-term semantic memory module removed entirely. `Mem0Memory` type, `mem0Enabled` config, `mem0_memories` retrieval context, and all `searchMemories`/`addMemory`/`initMem0Bridge` calls removed from SAC.
 
 ## [1.0.0] — 2026-06-26
 

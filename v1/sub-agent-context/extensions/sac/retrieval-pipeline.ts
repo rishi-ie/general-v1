@@ -111,5 +111,14 @@ export function assembleContextText(context: RetrievalContext): string {
     lines.push("");
   }
 
+  if (context.semantic_hits && context.semantic_hits.length > 0) {
+    lines.push("## Semantic Memory");
+    for (const hit of context.semantic_hits.slice(0, 5)) {
+      lines.push(`### ${hit.title} (${hit.source}, score: ${hit.score.toFixed(3)})`);
+      lines.push(hit.content.slice(0, 200));
+      lines.push("");
+    }
+  }
+
   return lines.join("\n");
 }

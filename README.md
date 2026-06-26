@@ -61,6 +61,8 @@ On first boot (no `SUPERHIVE_API_KEY` set), a key is generated and printed to st
 | `/plan` | Show current plan summary |
 | `/plan next` | Advance to next incomplete phase |
 | `/permission status` | Show active grants and pending requests |
+| `/semantic-search <q>` | Search semantic memory |
+| `/semantic-add <fact>` | Add a fact to memory |
 | `/subagents` | List active sub-agents |
 | `/snapshot` | Generate cognitive snapshot |
 | `/doctor` | Full system health check |
@@ -106,6 +108,7 @@ Provider auto-detection order: minimax, anthropic, google, openai, deepseek, gro
 | `v1/docs/` | Command reference |
 | `v1/planning/` | File-based task plans (`task_plan.md`) |
 | `v1/browser/` | Web browsing via browser-use |
+| `v1/lancedb/` | Semantic memory with hybrid vector + full-text search |
 | `v1/mission-control/` | Ticket tracking, LLM auto-capture on turn_end |
 | `v1/permission/` | Authority levels (pi-permission-system) |
 | `v1/sub-agent/` | Spawn child agents |

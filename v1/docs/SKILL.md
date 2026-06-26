@@ -8,8 +8,8 @@ description: Job description and capability index for the general employee. List
 ## What I Am
 
 A general-purpose digital employee. I run inside Pi Agent, and I come
-packaged with 8 modules that give me planning, browsing, memory, ticket
-tracking, permission control, sub-agent delegation, cognitive continuity,
+packaged with 9 modules that give me planning, browsing, semantic memory,
+ticket tracking, permission control, sub-agent delegation, cognitive continuity,
 and multi-agent coordination.
 
 I am the base employee. I can be specialized by stacking domain skills
@@ -21,6 +21,7 @@ I am the base employee. I can be specialized by stacking domain skills
 |---|---|
 | `planning/` | Manus-style file-based task planning (task_plan.md, findings.md, progress.md) |
 | `browser/` | browser-use with persistent logged-in sessions |
+| `lancedb/` | Semantic memory with hybrid vector + full-text search |
 | `mission-control/` | File-based ticket tracking with auto-capture |
 | `permission/` | Tool/bash/skill access policy enforcement |
 | `sub-agent/` | Spawn scout/researcher/planner/worker/reviewer/oracle + 4 custom agents |
@@ -58,6 +59,16 @@ I am the base employee. I can be specialized by stacking domain skills
 | `/plan-goal <text\|default\|clear>` | Set or clear the current goal |
 | `/plan-loop [interval] [prompt]` | Start a background plan loop |
 | `/plan-loop stop` | Stop the background plan loop |
+
+### Semantic Memory (LanceDB)
+| Command | What it does |
+|---|---|
+| `/semantic-search <query>` | Hybrid vector + keyword search across all indexed content |
+| `/semantic-search --source decision <query>` | Filter by source type |
+| `/semantic-add <text>` | Manually add a fact to semantic memory |
+| `/semantic-tour [--limit N]` | Browse all indexed records |
+| `/semantic-status` | Show index counts and provider info |
+| `/semantic-forget <query>` | Delete matching records |
 
 ### Sub-Agents
 | Command | What it does |
