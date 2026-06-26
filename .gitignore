@@ -18,3 +18,5 @@ supervisord.conf.local
 .meta-agent/pi/
 .meta-agent/.setup-complete
 .vscode/settings.json
+v1/*/*/
+v1/sub-agent/src/src/
