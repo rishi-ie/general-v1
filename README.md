@@ -39,23 +39,6 @@ export ANTHROPIC_API_KEY=your-key
 ./meta-agent/run.sh --check
 ```
 
-### Portable Mode
-
-The agent can be packaged as a single self-contained folder that runs anywhere — no dependencies on the original install path.
-
-```bash
-# Build a portable package
-./meta-agent/package.sh my-agent /tmp/my-agent
-# Produces: dist/my-agent.tar.gz
-
-# Extract anywhere and run
-tar -xzf dist/my-agent.tar.gz -C ~/agents
-cd ~/agents/my-agent
-./agent.sh -p "hello"
-```
-
-The folder's identity (ULID) is generated on first run and stored in `.general-v1/.identity`. Move or copy the folder freely — the identity persists. See [docs/portable.md](docs/portable.md) for details.
-
 ### 4. Docker
 
 ```bash
@@ -67,6 +50,24 @@ MINIMAX_API_KEY=your-key docker-compose up --build
 ```
 
 On first boot (no `SUPERHIVE_API_KEY` set), a key is generated and printed to stdout.
+
+### 5. Package as Portable
+
+```bash
+# Build a .tar.gz of the agent folder
+./meta-agent/package.sh
+
+# Or with a custom name
+./meta-agent/package.sh my-agent /tmp/my-agent
+# → dist/my-agent.tar.gz
+
+# Extract and run anywhere
+tar -xzf dist/my-agent.tar.gz -C ~/agents
+cd ~/agents/general-v1-portable  # (or your custom name)
+./agent.sh -p "hello"
+```
+
+Each extracted folder is fully self-contained — no dependency on `$HOME`, the original install path, or the cwd. Identity (ULID) lives in `.general-v1/.identity`. See [docs/portable.md](docs/portable.md).
 
 ## Commands
 
@@ -162,7 +163,7 @@ All features work offline except LLM responses. The agent boots, registers all s
 - [x] Container healthcheck on `GET /health`
 - [x] Docker: `docker-compose up --build` produces working stack
 - [x] Smoke test: `npm run smoke` passes
-- [x] CI: GitHub Actions on push to main
+- [x] Portable test: `bash scripts/test-portable.sh` passes
 
 ## Development
 
