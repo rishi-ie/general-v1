@@ -322,8 +322,10 @@ function registerCommands(pi: ExtensionAPI, state: RuntimeState): void {
 }
 
 export default function missionControlExtension(pi: ExtensionAPI): void {
+  let storeInitialized = false;
+
   const state: RuntimeState = {
-    store: new FileTicketStore(pi.cwd),
+    store: new FileTicketStore(process.cwd()),
     conversationBuffer: [],
     pendingConfirmations: new Map(),
   };
@@ -331,6 +333,10 @@ export default function missionControlExtension(pi: ExtensionAPI): void {
   registerCommands(pi, state);
 
   pi.on('session_start', async (_event, ctx) => {
+    if (!storeInitialized) {
+      state.store = new FileTicketStore(ctx.cwd);
+      storeInitialized = true;
+    }
     state.conversationBuffer = [];
     const tickets = await state.store.getAllTickets();
 
@@ -357,9 +363,20 @@ export default function missionControlExtension(pi: ExtensionAPI): void {
   });
 
   pi.on('turn_end', async (_event, ctx) => {
-    const turns = ctx.sessionManager.getRecentTurns
-      ? ctx.sessionManager.getRecentTurns(MAX_CONVERSATION_BUFFER)
-      : [];
+    const entries = ctx.sessionManager.getEntries();
+    const recentEntries = entries.slice(-MAX_CONVERSATION_BUFFER * 2);
+    const turns: Array<{ userMessage: string; agentMessage: string }> = [];
+
+    for (let i = 0; i < recentEntries.length - 1; i += 2) {
+      const userEntry = recentEntries[i];
+      const agentEntry = recentEntries[i + 1];
+      if (userEntry?.role === 'user' && agentEntry?.role === 'assistant') {
+        turns.push({
+          userMessage: userEntry.content || '',
+          agentMessage: agentEntry.content || '',
+        });
+      }
+    }
 
     if (turns.length === 0) return;
 

@@ -1,0 +1,9 @@
+.git/
+.github/
+meta-agent/pi/node_modules/
+meta-agent/.pi/
+**/node_modules/
+**/.pi/
+**/dist/
+**/*.log
+.DS_Store

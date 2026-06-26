@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { updateGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
+import { getMetaState, addGoal, updateGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
 
 const PLAN_FILE = "task_plan.md";
 const ACTIVE_PLAN_FILE = ".planning/.active_plan";
@@ -34,7 +34,6 @@ function parsePlan(cwd: string): ParsedTask[] {
     const lines = content.split("\n");
     let currentPhase = "Phase 1";
     let taskIndex = 0;
-    let currentStatus: ParsedTask["status"] = "pending";
     for (const line of lines) {
       const phaseMatch = line.match(/^## Phase \d+:\s+(.+)/);
       if (phaseMatch) {
@@ -57,21 +56,48 @@ function parsePlan(cwd: string): ParsedTask[] {
   return tasks;
 }
 
+let goalsByTitle: Map<string, string> | null = null;
+
+function ensureGoalsMap(): void {
+  if (goalsByTitle !== null) return;
+  goalsByTitle = new Map();
+  try {
+    const state = getMetaState();
+    for (const goal of state.goals) {
+      goalsByTitle.set(goal.title, goal.goal_id);
+    }
+  } catch {
+    goalsByTitle = new Map();
+  }
+}
+
 export default function planningMcIntegration(
   pi: { on(event: string, cb: () => void | Promise<void>): void }
 ): void {
-  pi.on("turn_end", async (event: unknown, ctx: unknown) => {
+  pi.on("turn_end", async () => {
     try {
-      const extCtx = ctx as { cwd?: string };
-      const cwd = extCtx?.cwd ?? process.cwd();
+      ensureGoalsMap();
+      const cwd = process.cwd();
       const tasks = parsePlan(cwd);
       for (const { phase, taskIndex, task, status } of tasks) {
         if (status === "in_progress" || status === "completed") {
-          updateGoal(task, {
-            title: `[${phase} #${taskIndex + 1}] ${task}`,
-            status,
-            progress: status === "completed" ? 100 : 0,
-          });
+          const goalId = goalsByTitle!.get(task);
+          if (goalId) {
+            updateGoal(goalId, {
+              title: `[${phase} #${taskIndex + 1}] ${task}`,
+              status,
+              progress: status === "completed" ? 100 : 0,
+            });
+          } else {
+            const newGoal = addGoal({
+              title: task,
+              status,
+              priority: "medium",
+              progress: status === "completed" ? 100 : 0,
+              blockers: [],
+            });
+            goalsByTitle!.set(task, newGoal.goal_id);
+          }
         }
       }
     } catch {}

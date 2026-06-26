@@ -3,19 +3,29 @@ version: "3.9"
 services:
   superhive:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context .
+      dockerfile Dockerfile
     container_name: superhive
     environment:
       - SUPERHIVE_API_KEY=${SUPERHIVE_API_KEY:-}
-      - SUPERHIVE_PUBLIC_PORT=7711
-      - SUPERHIVE_MODE=localhost
       - SUPERHIVE_LOG_LEVEL=info
-      - AGENT_MODEL=${AGENT_MODEL:-claude-sonnet-4-5}
+      - PI_CODING_AGENT_DIR=/app/meta-agent/meta-agent-config
+      - PI_CODING_AGENT_SESSION_DIR=/root/.pi/agent/sessions
+      - PI_SKIP_VERSION_CHECK=1
+      - PI_OFFLINE=${PI_OFFLINE:-}
+      - MINIMAX_API_KEY=${MINIMAX_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - TOGETHER_API_KEY=${TOGETHER_API_KEY:-}
     volumes:
-      - ./pi:/app/pi:ro
       - superhive-data:/root/.superhive
-      - ./agents.json:/app/agents.json:ro
+      - superhive-sessions:/root/.pi/agent/sessions
+    working_dir: /app
     ports:
       - "7711:7711"
     restart: unless-stopped
@@ -24,8 +34,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
 
 volumes:
   superhive-data:
-    driver: local
+  superhive-sessions:

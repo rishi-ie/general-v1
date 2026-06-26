@@ -11,11 +11,6 @@
     "extensions/mem0-extension.ts",
     "extensions/permission-extension.ts",
 
-    "extensions/model-router.ts",
-    "extensions/memory.ts",
-    "extensions/context-manager.ts",
-    "extensions/persona.ts",
-
     "v1/integrations/mc-sac.ts",
     "v1/integrations/planning-mc.ts",
     "v1/integrations/sac-subagent.ts",
@@ -34,7 +29,6 @@
     "v1/mission-control/SKILL.md",
     "v1/sub-agent/SKILL.md",
     "v1/sub-agent-context/SKILL.md",
-    "v1/communication/SKILL.md",
 
     "skills/planning-with-files.md",
     "skills/browser.md"

@@ -63,6 +63,12 @@
         "meta-llama/Llama-3.3-70B-Instruct": "Llama 3.3 70B",
         "deepseek-ai/DeepSeek-V3": "DeepSeek V3"
       }
+    },
+    "minimax": {
+      "displayName": "MiniMax",
+      "models": {
+        "MiniMax-M3": "MiniMax-M3 (Coding Plan)"
+      }
     }
   },
 

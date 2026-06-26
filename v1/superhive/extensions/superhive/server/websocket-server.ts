@@ -1,5 +1,5 @@
 import { WebSocketServer as WSS, WebSocket } from 'ws';
-import { IncomingMessage } from 'http';
+import { createServer, IncomingMessage, ServerResponse } from 'http';
 import { Connection, ConnectionOptions } from './connection';
 import { Logger } from '../logger';
 
@@ -15,51 +15,63 @@ export interface ServerOptions {
 
 export class WebSocketServer {
   private wss: WSS | null = null;
+  private httpServer: ReturnType<typeof createServer> | null = null;
   private connections = new Map<string, Connection>();
 
   constructor(private opts: ServerOptions) {}
 
   async start(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.wss = new WSS({
-        host: this.opts.host,
-        port: this.opts.port,
-        maxPayload: this.opts.maxPayloadBytes,
-        perMessageDeflate: true,
+      this.httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+        if (req.method === 'GET' && req.url === '/health') {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ status: 'ok', ts: Date.now() }));
+          return;
+        }
+        if (req.headers.upgrade === 'websocket') {
+          this.httpServer!.handleUpgrade(req, req.socket, Buffer.alloc(0), (ws: WebSocket) => {
+            this.handleWsConnection(ws, req);
+          });
+        } else {
+          res.writeHead(404);
+          res.end();
+        }
       });
 
-      this.wss.on('listening', () => {
+      this.httpServer.on('listening', () => {
         resolve();
       });
 
-      this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
-        const id = `${req.socket.remoteAddress ?? 'unknown'}-${Date.now()}`;
-        const conn = new Connection(ws, id, req.socket.remoteAddress ?? 'unknown', {
-          heartbeatMs: this.opts.heartbeatMs,
-          heartbeatTimeoutMs: this.opts.heartbeatTimeoutMs,
-        });
-
-        this.connections.set(id, conn);
-
-        conn.on('close', (code, reason) => {
-          this.connections.delete(id);
-        });
-
-        conn.on('error', (err) => {
-          this.connections.delete(id);
-        });
-
-        this.opts.onConnection(conn, req);
-      });
-
-      this.wss.on('error', (err) => {
-        if (!this.wss) {
+      this.httpServer.on('error', (err) => {
+        if (!this.httpServer) {
           reject(err);
         } else {
           this.opts.onError?.(err);
         }
       });
+
+      this.httpServer.listen(this.opts.port, this.opts.host);
     });
+  }
+
+  private handleWsConnection(ws: WebSocket, req: IncomingMessage): void {
+    const id = `${req.socket.remoteAddress ?? 'unknown'}-${Date.now()}`;
+    const conn = new Connection(ws, id, req.socket.remoteAddress ?? 'unknown', {
+      heartbeatMs: this.opts.heartbeatMs,
+      heartbeatTimeoutMs: this.opts.heartbeatTimeoutMs,
+    });
+
+    this.connections.set(id, conn);
+
+    conn.on('close', (code, reason) => {
+      this.connections.delete(id);
+    });
+
+    conn.on('error', () => {
+      this.connections.delete(id);
+    });
+
+    this.opts.onConnection(conn, req);
   }
 
   async stop(): Promise<void> {
@@ -75,7 +87,7 @@ export class WebSocketServer {
     this.connections.clear();
 
     return new Promise((resolve) => {
-      this.wss?.close(() => resolve());
+      this.httpServer?.close(() => resolve());
     });
   }
 

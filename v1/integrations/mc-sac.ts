@@ -1,4 +1,4 @@
-import { appendGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
+import { addGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -37,7 +37,7 @@ export default function mcSacIntegration(
       if (!lastMsg?.content) return;
       const goals = extractGoals(lastMsg.content);
       for (const title of goals) {
-        appendGoal({
+        addGoal({
           title,
           status: "in_progress",
           priority: "medium",

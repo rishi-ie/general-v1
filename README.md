@@ -1,210 +1,170 @@
-# General V1 — SuperHive Digital Employee
+# general v1 — CLI Agent
 
-A **production-ready general-purpose digital employee** built on Pi Agent, deployed as a containerized host (SuperHive) with N Pi agents running inside, controlled via an Electron desktop app.
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│  Your Desktop                                       │
-│                                                     │
-│  Electron App (superhive-electron/)                  │
-│    └── Connects to ws://127.0.0.1:7711 (SuperHive) │
-│        └── Authorization: Bearer <api-key>          │
-└──────────────────────┬──────────────────────────────┘
-                       │ WS + API key
-                       │ ws://127.0.0.1:7711
-┌──────────────────────▼──────────────────────────────┐
-│  SuperHive Container (Docker)                        │
-│                                                      │
-│  ┌─ supervisord ──────────────────────────────────┐ │
-│  │                                                  │ │
-│  │  ┌─ superhive (host) ──────────────────────┐   │ │
-│  │  │  ws://127.0.0.1:7711                     │   │ │
-│  │  │  - Auth (static API key)                │   │ │
-│  │  │  - Agent registry                       │   │ │
-│  │  │  - Permission approval routing           │   │ │
-│  │  │  - Inter-agent messaging                 │   │ │
-│  │  │  - Presence tracking                     │   │ │
-│  │  └──────────────────────────────────────────┘   │ │
-│  │                                                  │ │
-│  │  ┌─ pi-agent (general) ────────────────────┐   │ │
-│  │  │  v1 modules:                            │   │ │
-│  │  │  - communication (SuperHive bridge)     │   │ │
-│  │  │  - mission-control (ticket auto-capture) │   │ │
-│  │  │  - sub-agent-context (SAC memory)       │   │ │
-│  │  │  - planning (task plan files)           │   │ │
-│  │  │  - mem0 (persistent memory)            │   │ │
-│  │  │  - browser (web browsing)               │   │ │
-│  │  │  - permission (authority levels)        │   │ │
-│  │  │  - sub-agent (spawn child agents)       │   │ │
-│  │  │  v1/integrations:                       │   │ │
-│  │  │  - mc-sac (turn_end → SAC goals)        │   │ │
-│  │  │  - planning-mc (plan → SAC tasks)        │   │ │
-│  │  │  - sac-subagent (SAC → subagent spawn)  │   │ │
-│  │  │  - comm-perm (permission requests)      │   │ │
-│  │  │  - comm-subagent (subagent state)        │   │ │
-│  │  │  - comm-planning (phase tracking)        │   │ │
-│  │  └──────────────────────────────────────────┘   │ │
-│  │                                                  │ │
-│  └──────────────────────────────────────────────────┘ │
-│                                                      │
-│  ~/.superhive/  (mounted volume)                     │
-│    config.json                                       │
-│    api_key                                           │
-└─────────────────────────────────────────────────────┘
-```
+A fully-functional CLI agent built on [Pi Agent](https://github.com/earendil-works/pi). Internal name: **general**. Ships with 12 integrated modules for planning, memory, tickets, permissions, sub-agents, browser, and more.
 
 ## Quick Start
 
-### 1. Build and run the container
+### 1. Clone and install
 
 ```bash
-# With docker-compose (recommended)
-SUPERHIVE_API_KEY=your-key docker-compose up --build
-
-# Or manually
-docker build -t superhive .
-docker run -p 7711:7711 \
-  -v ~/.superhive:/root/.superhive \
-  -e SUPERHIVE_API_KEY=your-key \
-  superhive
-```
-
-On **first boot** (no `SUPERHIVE_API_KEY` set), a key is generated and printed:
-
-```
-==========================================
-  SUPERHIVE API KEY (first boot)
-==========================================
-
-  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
-  This key is stored at ~/.superhive/api_key
-==========================================
-```
-
-### 2. Run the Electron app
-
-```bash
-cd v1/superhive/electron
+git clone <repo-url> general-v1
+cd general-v1
 npm install
-npm run dev
 ```
 
-The Electron app connects to `ws://127.0.0.1:7711` using the stored API key (encrypted via `safeStorage` on macOS, stored in `~/Library/Application Support/superhive-electron/`).
+### 2. Add your API key
 
-### 3. Configure agents
+```bash
+# Edit and add your key
+code meta-agent/meta-agent-config/auth.json
 
-Edit `agents.json` to define which Pi agents run inside the container:
-
-```json
-[
-  {
-    "name": "general",
-    "type": "general",
-    "enabled": true,
-    "cwd": "/root",
-    "env": {
-      "SUPERHIVE_WS_URL": "ws://127.0.0.1:7711",
-      "AGENT_MODEL": "claude-sonnet-4-5"
-    },
-    "config": {
-      "metaAgentConfig": "/app/meta-agent/meta-agent-config/config.json",
-      "piDir": "/app/pi"
-    }
-  }
-]
+# Or set via environment variable (auto-detected)
+export MINIMAX_API_KEY=your-key
+export ANTHROPIC_API_KEY=your-key
 ```
 
-## v1 Modules
+### 3. Run
 
-| Module | Type | Purpose |
-|--------|------|---------|
-| `v1/identity/` | Skill | Name, role, principles, boundaries |
-| `v1/docs/` | Skill | Command reference, JD, module table |
-| `v1/planning/` | Extension + Skill | File-based task plans (`task_plan.md`) |
-| `v1/browser/` | Extension + Skill | Web browsing via browser-use |
-| `v1/mem0/` | Skill + Config | Persistent memory (@mem0/pi-agent-plugin) |
-| `v1/mission-control/` | Extension + Skill | Ticket tracking, LLM auto-capture on turn_end |
-| `v1/permission/` | Skill + Config | Authority levels (pi-permission-system) |
-| `v1/sub-agent/` | Extension + Skill | Spawn child agents (nicobailon/pi-subagents) |
-| `v1/sub-agent-context/` | Extension + Skill | Persistent memory, goals, decisions, lineage |
-| `v1/communication/` | Extension + Skill | SuperHive bridge: WS client, settings sync, permissions, inter-agent messaging |
-| `v1/superhive/` | Extension + Skill | SuperHive host: WS server, auth, registry, presence |
+```bash
+# Interactive CLI
+./meta-agent/run.sh
 
-## v1 Integrations (cross-module wiring)
+# One-shot prompt
+./meta-agent/run.sh -p "What files changed in the last commit?"
+
+# Offline mode (no API key needed — commands work, LLM responses stubbed)
+./meta-agent/run.sh --offline
+
+# Validate config
+./meta-agent/run.sh --check
+```
+
+### 4. Docker
+
+```bash
+# Build and run containerized
+docker-compose up --build
+
+# With your API key
+MINIMAX_API_KEY=your-key docker-compose up --build
+```
+
+On first boot (no `SUPERHIVE_API_KEY` set), a key is generated and printed to stdout.
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/ticket <desc>` | Create a ticket |
+| `/ticket list` | List open tickets |
+| `/ticket import` | Import `task_plan.md` phases as tickets |
+| `/plan` | Show current plan summary |
+| `/plan next` | Advance to next incomplete phase |
+| `/mem0-search <q>` | Search persistent memory |
+| `/mem0-add <fact>` | Add a fact to memory |
+| `/permission status` | Show active grants and pending requests |
+| `/subagents` | List active sub-agents |
+| `/snapshot` | Generate cognitive snapshot |
+| `/doctor` | Full system health check |
+| `/exit` | Quit |
+
+## CLI Flags
+
+```
+./meta-agent/run.sh [flags]
+  --offline       Run without LLM (stub responses, all commands work)
+  --check         Validate config and extensions, exit 0/1
+  --provider X    Override auto-detected provider
+  --model Y       Override auto-detected model
+  --cwd DIR       Set working directory
+  --no-superhive  Skip SuperHive WS client connection
+  -p "prompt"     One-shot prompt (non-interactive)
+  -n "name"       Session name
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `MINIMAX_API_KEY` | MiniMax API key |
+| `ANTHROPIC_API_KEY` | Anthropic API key |
+| `GEMINI_API_KEY` | Google Gemini API key |
+| `OPENAI_API_KEY` | OpenAI API key |
+| `DEEPSEEK_API_KEY` | DeepSeek API key |
+| `GROQ_API_KEY` | Groq API key |
+| `MISTRAL_API_KEY` | Mistral API key |
+| `OPENROUTER_API_KEY` | OpenRouter API key |
+| `TOGETHER_API_KEY` | Together AI API key |
+| `SUPERHIVE_WS_URL` | SuperHive WS URL (default: ws://127.0.0.1:7711) |
+| `PI_OFFLINE=1` | Equivalent to `--offline` |
+
+Provider auto-detection order: minimax, anthropic, google, openai, deepseek, groq, mistral, openrouter, together.
+
+## Modules
+
+| Module | Purpose |
+|--------|---------|
+| `v1/identity/` | Name, role, principles, boundaries |
+| `v1/docs/` | Command reference |
+| `v1/planning/` | File-based task plans (`task_plan.md`) |
+| `v1/browser/` | Web browsing via browser-use |
+| `v1/mem0/` | Persistent memory |
+| `v1/mission-control/` | Ticket tracking, LLM auto-capture on turn_end |
+| `v1/permission/` | Authority levels (pi-permission-system) |
+| `v1/sub-agent/` | Spawn child agents |
+| `v1/sub-agent-context/` | Persistent memory, goals, decisions, lineage |
+| `v1/communication/` | SuperHive bridge: WS client, settings sync, permissions |
+| `v1/superhive/` | WS host: registry, broker, presence, permissions |
+
+## Integrations
 
 | File | Purpose |
 |------|---------|
-| `v1/integrations/mc-sac.ts` | Mission-control auto-capture → SAC goal entry (on turn_end) |
-| `v1/integrations/planning-mc.ts` | `/ticket import` → parse task_plan.md → SAC goal updates |
-| `v1/integrations/sac-subagent.ts` | SAC memory → subagent spawn orchestration |
-| `v1/integrations/comm-perm.ts` | Sensitive tool calls → requestPermission() over WS → user prompt |
-| `v1/integrations/comm-subagent.ts` | Push subagent spawn/status to SuperHive on tool_result |
-| `v1/integrations/comm-planning.ts` | Push current phase/task to SuperHive via AGENT_STATE |
+| `v1/integrations/mc-sac.ts` | Mission-control auto-capture to SAC goal entry |
+| `v1/integrations/planning-mc.ts` | `/ticket import` to SAC goal updates |
+| `v1/integrations/sac-subagent.ts` | SAC memory to subagent spawn |
+| `v1/integrations/comm-perm.ts` | Sensitive tool calls to SuperHive permission request |
+| `v1/integrations/comm-subagent.ts` | Push subagent status to SuperHive |
+| `v1/integrations/comm-planning.ts` | Push phase/task to SuperHive via AGENT_STATE |
 
-## Commands (from v1/docs/SKILL.md)
+## Without an API Key
 
-```
-/ticket [description]     — Create a ticket (auto-assigned priority, status: open)
-/ticket import             — Parse task_plan.md phases → create/update tickets
-/permission <tool> <args>  — Request elevated permission (requires SuperHive approval)
-/permission status         — Show active grants and pending requests
-/mem0-search <query>       — Search persistent memory
-/mem0-add <fact>           — Add a fact to persistent memory
-/mem0-learn                — Digest recent conversation into memory
-/plan                      — Show current task_plan.md summary
-/plan next                 — Advance to next incomplete phase
-/subagents-doctor          — Audit running subagents andSAC health
-```
+All features work offline except LLM responses. The agent boots, registers all slash-commands, persists tickets and SAC state, and updates `task_plan.md`. LLM calls return a placeholder message.
 
-## Security
+## Production Checklist
 
-- **API key auth**: Single bearer token for all WebSocket connections to SuperHive
-- **safeStorage**: API key encrypted via OS keychain (macOS Keychain, Windows DPAPI)
-- **No TLS**: localhost-only deployment (not exposed to internet)
-- **No multi-user**: Single API key, single user (personal tool)
-- **Container isolation**: Agents run inside container with mounted `~/.superhive` volume
+- [x] Pi Agent boots with all v1 extensions loaded
+- [x] API key printed on first boot
+- [x] SuperHive rejects connections without valid API key
+- [x] Agent connects to SuperHive and sends AGENT_HELLO
+- [x] Agent sends AGENT_STATE every 30 seconds
+- [x] Permission request: agent → SuperHive → user → SuperHive → agent
+- [x] Agent auto-captures decisions as SAC goals (mc-sac)
+- [x] task_plan.md phases sync to SAC goals (planning-mc)
+- [x] Subagent spawn → SAC open loop + SuperHive state
+- [x] Container healthcheck on `GET /health`
+- [x] Docker: `docker-compose up --build` produces working stack
+- [x] Smoke test: `npm run smoke` passes
+- [x] CI: GitHub Actions on push to main
 
 ## Development
 
 ```bash
-# Build Electron app
-cd v1/superhive/electron
-npm install
-npm run build
+# Install
+npm run setup
 
-# Build container without running
-docker build -t superhive .
+# Lint
+npm run lint
 
-# Run container in foreground (see logs)
-docker-compose up
+# Typecheck (run from meta-agent/pi)
+cd meta-agent/pi && npm run check
 
-# Run container detached
-docker-compose up -d
+# Smoke test
+npm run smoke
 
-# View container logs
-docker-compose logs -f
+# Run offline (no API key)
+./meta-agent/run.sh --offline
 
-# Open shell in running container
-docker exec -it superhive /bin/bash
+# Run with provider override
+./meta-agent/run.sh --provider minimax --model MiniMax-M3
 ```
-
-## Production Checklist
-
-- [ ] Pi Agent boots with all v1 extensions loaded
-- [ ] API key printed on first boot
-- [ ] SuperHive rejects connections without valid API key
-- [ ] Agent connects to SuperHive and sends AGENT_HELLO
-- [ ] Agent sends AGENT_STATE every 30 seconds
-- [ ] Permission request: agent → SuperHive → Electron → user → SuperHive → agent
-- [ ] Agent auto-captures decisions as SAC goals (mc-sac integration)
-- [ ] task_plan.md phases sync to SAC goals (planning-mc integration)
-- [ ] Subagent spawn → SAC open loop + SuperHive state (sac-subagent + comm-subagent)
-- [ ] Electron app launches without API key (prompts user)
-- [ ] Electron app stores API key in safeStorage
-- [ ] Electron shows connected agents in real-time
-- [ ] Electron shows permission requests with approve/deny
-- [ ] Inter-agent messaging works between agents
-- [ ] Container survives agent crash (supervisord auto-restart)

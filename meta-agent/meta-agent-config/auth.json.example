@@ -124,5 +124,11 @@
   "huggingface": {
     "type": "api_key",
     "key": ""
+  },
+  "minimax": {
+    "type": "api_key",
+    "key": "",
+    "baseUrl": "https://api.minimaxi.com/v1",
+    "models": ["MiniMax-M3"]
   }
 }

@@ -1,0 +1,19 @@
+{
+  "name": "general-v1",
+  "version": "1.0.0",
+  "description": "general v1 — a fully-functional CLI agent built on Pi Agent",
+  "private": true,
+  "scripts": {
+    "setup": "./meta-agent/setup.sh",
+    "start": "./meta-agent/run.sh",
+    "dev": "./meta-agent/run.sh",
+    "check": "./meta-agent/run.sh --check",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "smoke": "./scripts/smoke.sh",
+    "clean": "rm -rf meta-agent/.pi meta-agent/pi/node_modules v1/*/node_modules"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0"
+  }
+}
