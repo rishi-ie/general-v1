@@ -9,7 +9,6 @@ import {
   linkEpochToCompaction,
   loadLineage,
 } from "./lineage-engine";
-import { addMemory, initMem0Bridge, searchMemories } from "./mem0-bridge";
 import { initMemoryQuestionRouter, isMemoryQuestion } from "./memory-question-router";
 import { initMetaMemoryAgentModule } from "./meta-memory-agent";
 import { getMetaState, initMetaStateModule, loadMetaState, setContextSummary } from "./meta-state";
@@ -62,7 +61,6 @@ async function handleSessionStart(ctx: ExtensionContext): Promise<void> {
   });
   initLineageEngineModule(observer, { storagePath: config.storagePath, autoLineage: config.autoLineage });
 
-  await initMem0Bridge();
   initSnapshotService({ snapshotFormat: config.snapshotFormat, maxRecentDecisions: config.maxRecentDecisions });
   initMemoryQuestionRouter(config.memoryQuestionDetection);
   initMetaMemoryAgentModule({ metaMemoryAgent: config.metaMemoryAgent }, ctx.pi);
@@ -110,18 +108,6 @@ async function handleAgentEnd(
     setContextSummary(userMsgs.slice(0, 500));
   }
 
-  if (config.mem0Enabled && sessionId) {
-    const memMessages: Array<{ role: string; content: string }> = [];
-    for (const m of messages) {
-      if (m.content) {
-        memMessages.push({ role: m.role, content: m.content });
-      }
-    }
-    if (memMessages.length > 0) {
-      await addMemory(sessionId, memMessages);
-    }
-  }
-
   await observer.emitAgentResponse(assistantMsgs.slice(0, 2000), ctx);
 
   log("agent end handled", { message_count: messages.length });
@@ -131,10 +117,6 @@ async function handleToolResult(event: { toolName: string; result: unknown }, ct
   const content = typeof event.result === "string" ? event.result : JSON.stringify(event.result).slice(0, 2000);
 
   await observer.emitFromToolResult(event.toolName, content, ctx);
-
-  if (config.mem0Enabled && sessionId) {
-    await addMemory(sessionId, [{ role: "tool", content: `[${event.toolName}] ${content}` }]);
-  }
 }
 
 async function handleSessionBeforeCompact(
@@ -215,7 +197,6 @@ export default async function (pi: ExtensionAPI): Promise<void> {
   log("initializing", { version: "0.1.0", config });
 
   await initStorage();
-  await initMem0Bridge();
   initSnapshotService({ snapshotFormat: config.snapshotFormat, maxRecentDecisions: config.maxRecentDecisions });
   initMemoryQuestionRouter(config.memoryQuestionDetection);
 

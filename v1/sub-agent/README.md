@@ -135,7 +135,6 @@ Your system prompt here.
 |--------|------------|
 | Planning | Planner agent creates plan files |
 | Mission Control | Agents update tickets |
-| Mem0 | Agents store memories |
 | Browser | Researcher agent does web research |
 | Communication | Status streams to SuperHive |
 | Permission | Delegation gated by permission/ |

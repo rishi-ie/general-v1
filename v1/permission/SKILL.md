@@ -121,5 +121,4 @@ These are the safety baseline — the agent should never be completely locked ou
 |--------|----------------------|
 | Planning | Agent needs write permission to create plan files |
 | Mission Control | Needs write to create/update tickets |
-| Mem0 | Needs skill permission to load |
 | Browser | Needs bash permission to run browser commands |

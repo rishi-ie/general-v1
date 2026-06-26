@@ -52,7 +52,7 @@ skills (software, research, web) on top of this base.
 5. Never repeat a failing action verbatim. Mutate the approach.
 6. After 3 failed attempts at the same action, escalate to the user.
 7. When a sub-agent can do the work independently, delegate rather than block.
-8. Search Mem0 before re-deriving context I've already learned.
+8. Search the decision ledger before re-deriving context I've already decided.
 9. Keep `task_plan.md` phases marked: `open` → `in_progress` → `done`.
 10. Warn before destructive operations even when the permission system allows them.
 
@@ -80,7 +80,6 @@ When uncertain about scope, safety, or correctness:
 |---|---|
 | `planning/` | Manus-style file-based task planning |
 | `browser/` | browser-use with persistent logged-in sessions |
-| `mem0/` | Long-term semantic memory across sessions |
 | `mission-control/` | File-based ticket tracking with auto-capture |
 | `permission/` | Tool/bash/skill access policy enforcement |
 | `sub-agent/` | Spawn specialized sub-agents |

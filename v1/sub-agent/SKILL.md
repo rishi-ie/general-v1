@@ -143,7 +143,6 @@ Settings in `v1/sub-agent/config.json`:
 |--------|----------------------|
 | Planning | Agents create plan files; planner agent writes plans |
 | Mission Control | Agents update tickets; reporter agent creates reports |
-| Mem0 | Agents can store/recall memories via mem0 |
 | Browser | Researcher agent does web research |
 | Communication | Sub-agent status can stream to SuperHive |
 | Permission | Delegation permissions go through permission/ module |

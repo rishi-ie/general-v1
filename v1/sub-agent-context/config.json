@@ -1,6 +1,5 @@
 {
   "storagePath": "~/.general-v1/sac/",
-  "mem0Enabled": true,
   "autoSnapshot": true,
   "autoLineage": true,
   "memoryQuestionDetection": {

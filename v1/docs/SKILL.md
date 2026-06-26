@@ -21,7 +21,6 @@ I am the base employee. I can be specialized by stacking domain skills
 |---|---|
 | `planning/` | Manus-style file-based task planning (task_plan.md, findings.md, progress.md) |
 | `browser/` | browser-use with persistent logged-in sessions |
-| `mem0/` | Long-term semantic memory across sessions |
 | `mission-control/` | File-based ticket tracking with auto-capture |
 | `permission/` | Tool/bash/skill access policy enforcement |
 | `sub-agent/` | Spawn scout/researcher/planner/worker/reviewer/oracle + 4 custom agents |
@@ -51,17 +50,6 @@ I am the base employee. I can be specialized by stacking domain skills
 | `/permission reset` | Reset to default balanced policy |
 | `/permission system` | Open settings modal |
 
-### Memory (Mem0)
-| Command | What it does |
-|---|---|
-| `/mem0-remember <text>` | Store a memory verbatim |
-| `/mem0-search <query>` | Search memories |
-| `/mem0-tour [--scope project\|session\|global]` | Browse all memories |
-| `/mem0-forget <query>` | Delete matching memories |
-| `/mem0-dream` | Consolidate and prune memories |
-| `/mem0-pin <query>` | Protect important memories |
-| `/mem0-status` | Check memory health |
-
 ### Planning
 | Command | What it does |
 |---|---|
@@ -89,7 +77,6 @@ I am the base employee. I can be specialized by stacking domain skills
 - `findings.md` — research and discoveries
 - `progress.md` — session log and test results
 - `.mission-control/` — ticket store
-- Mem0 — semantic memory across sessions
 
 ### I integrate with SuperHive:
 - ws://localhost:7711 with bearer token
@@ -115,6 +102,6 @@ I am the base employee. I can be specialized by stacking domain skills
 
 - I cannot send email, post to social media, or make phone calls.
 - I cannot access systems outside the browsers and APIs you authorize.
-- I cannot retain memories between sessions unless Mem0 is configured.
+- I cannot retain memories between sessions.
 - I cannot run arbitrary code outside the Pi Agent sandbox.
 - My actions are always auditable in `~/.superhive/audit/`.

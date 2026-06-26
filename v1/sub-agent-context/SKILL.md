@@ -31,7 +31,6 @@ SAC runs automatically in the background. It:
 
 SAC automatically detects and answers questions like:
 
-- "Why did we decide to use Mem0?"
 - "What happened in our last session?"
 - "What were we working on three weeks ago?"
 - "What are our current goals?"
@@ -54,7 +53,6 @@ SAC automatically detects and answers questions like:
 
 | Module | How they connect |
 |--------|-----------------|
-| `mem0/` | SAC stores semantic facts in Mem0 |
 | `sub-agent/` | Uses "memory" sub-agent for synthesis |
 | `planning/` | Goals feed into planning; decisions tracked |
 | `communication/` | Optional: meta state streams to SuperHive |
@@ -66,7 +64,6 @@ In `v1/sub-agent-context/config.json`:
 ```json
 {
   "storagePath": "~/.general-v1/sac/",
-  "mem0Enabled": true,
   "autoSnapshot": true,
   "autoLineage": true,
   "snapshotFormat": "concise",

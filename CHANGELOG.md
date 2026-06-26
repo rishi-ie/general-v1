@@ -2,6 +2,12 @@
 
 All notable changes to general v1 are documented here.
 
+## [Unreleased]
+
+### Removed
+
+- **mem0 module** (`v1/mem0/`): Long-term semantic memory module removed entirely. `Mem0Memory` type, `mem0Enabled` config, `mem0_memories` retrieval context, and all `searchMemories`/`addMemory`/`initMem0Bridge` calls removed from SAC. Agent no longer has a persistent semantic memory layer.
+
 ## [1.0.0] — 2026-06-26
 
 ### Added

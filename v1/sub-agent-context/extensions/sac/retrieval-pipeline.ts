@@ -1,9 +1,8 @@
 import { getDecisions, getRecentDecisions } from "./decision-ledger";
 import { getAllEpochs, getEpochsByProject } from "./lineage-engine";
-import { searchMemories } from "./mem0-bridge";
 import { extractMemoryQuestionDetails } from "./memory-question-router";
 import { getMetaState } from "./meta-state";
-import type { Decision, Epoch, Goal, Mem0Memory, MetaState, RetrievalContext } from "./types";
+import type { Decision, Epoch, Goal, MetaState, RetrievalContext } from "./types";
 
 function log(msg: string, data?: Record<string, unknown>): void {
   console.log(`[sac] ${msg}`, data ?? {});
@@ -17,7 +16,6 @@ export async function retrieve(question: string, sessionId: string): Promise<Ret
   let meta_state: MetaState | undefined;
   let goals: Goal[] | undefined;
   let decisions: Decision[] | undefined;
-  let mem0_memories: Mem0Memory[] = [];
   let lineage_epochs: Epoch[] | undefined;
   let recent_activity: string | undefined;
 
@@ -41,14 +39,6 @@ export async function retrieve(question: string, sessionId: string): Promise<Ret
     lineage_epochs = getAllEpochs().slice(0, 5);
   }
 
-  if (details?.type === "decision_reasoning" && details.subject) {
-    mem0_memories = await searchMemories(sessionId, `decision ${details.subject}`, 10);
-  } else if (details?.type === "relationship" && details.subject) {
-    mem0_memories = await searchMemories(sessionId, `person ${details.subject}`, 10);
-  } else {
-    mem0_memories = await searchMemories(sessionId, question, 10);
-  }
-
   const activeProjects = meta_state.projects.filter((p) => p.status === "active");
   if (activeProjects.length > 0) {
     recent_activity = activeProjects.map((p) => `${p.name}: ${p.recent_activity}`).join("; ");
@@ -59,7 +49,6 @@ export async function retrieve(question: string, sessionId: string): Promise<Ret
     meta_state,
     goals,
     decisions,
-    mem0_memories,
     lineage_epochs,
     recent_activity,
   };
@@ -67,7 +56,6 @@ export async function retrieve(question: string, sessionId: string): Promise<Ret
   log("retrieval complete", {
     goals: goals.length,
     decisions: decisions.length,
-    mem0_memories: mem0_memories.length,
     lineage_epochs: lineage_epochs.length,
   });
 
@@ -105,14 +93,6 @@ export function assembleContextText(context: RetrievalContext): string {
       lines.push(`Confidence: ${decision.confidence}`);
       lines.push("");
     }
-  }
-
-  if (context.mem0_memories && context.mem0_memories.length > 0) {
-    lines.push("## Semantic Memories");
-    for (const memory of context.mem0_memories) {
-      lines.push(`- ${memory.text}`);
-    }
-    lines.push("");
   }
 
   if (context.lineage_epochs && context.lineage_epochs.length > 0) {

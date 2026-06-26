@@ -67,14 +67,6 @@ Provider auto-detection order: minimax, anthropic, google, openai, deepseek, gro
 /ticket confirm <key>    Confirm auto-detected task
 ```
 
-### Memory
-
-```
-/mem0-search <query>     Search persistent memory
-/mem0-add <fact>         Add a fact to memory
-/mem0-learn              Digest recent conversation into memory
-```
-
 ### Permissions
 
 ```

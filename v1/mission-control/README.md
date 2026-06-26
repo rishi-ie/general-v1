@@ -83,8 +83,6 @@ Mission Control works alongside the Planning module:
 
 | Module | What it tracks |
 |--------|---------------|
-| Mem0 | Knowledge, preferences, context |
 | Mission Control | Work items, tasks, todos |
 | Planning | Execution phases, progress |
-| Mem0 | Long-term memory |
 | Mission Control | Current work state |

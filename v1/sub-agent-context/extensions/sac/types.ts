@@ -128,7 +128,6 @@ export interface CognitiveSnapshot {
 
 export interface SACConfig {
   storagePath: string;
-  mem0Enabled: boolean;
   autoSnapshot: boolean;
   autoLineage: boolean;
   memoryQuestionDetection: {
@@ -145,16 +144,8 @@ export interface RetrievalContext {
   meta_state?: MetaState;
   goals?: Goal[];
   decisions?: Decision[];
-  mem0_memories?: Mem0Memory[];
   lineage_epochs?: Epoch[];
   recent_activity?: string;
-}
-
-export interface Mem0Memory {
-  id: string;
-  text: string;
-  metadata?: Record<string, unknown>;
-  created_at?: string;
 }
 
 export interface ObservedEvent {
@@ -191,7 +182,6 @@ export function createDefaultMetaState(): MetaState {
 export function createDefaultConfig(): SACConfig {
   return {
     storagePath: "~/.general-v1/sac/",
-    mem0Enabled: true,
     autoSnapshot: true,
     autoLineage: true,
     memoryQuestionDetection: {

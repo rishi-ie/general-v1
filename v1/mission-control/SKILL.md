@@ -9,7 +9,7 @@ Persistent ticket tracking that gives the agent long-term memory of what it's wo
 
 ## Core Principle
 
-Mission Control is the agent's **working memory for tasks**. Unlike mem0 (which stores knowledge, preferences, and context), Mission Control tracks **work items** — things that need to be done, are in progress, or have been completed.
+Mission Control is the agent's **working memory for tasks**. It tracks **work items** — things that need to be done, are in progress, or have been completed.
 
 ## When to Use
 

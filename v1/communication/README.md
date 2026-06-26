@@ -139,7 +139,6 @@ This is the intended behavior — agent operates normally but permission request
 | `permission/` | Routes sensitive requests through `requestPermission()` |
 | `sub-agent/` | Reports sub-agent status via `updateState()` |
 | `mission-control/` | Tickets visible in SuperHive UI |
-| `mem0/` | Memories browsable through SuperHive |
 | `planning/` | Current phase/task streamed to SuperHive |
 
 ## Related

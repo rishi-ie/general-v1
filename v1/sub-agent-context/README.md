@@ -25,7 +25,6 @@ SAC Extension
     ├── Meta State Store
     ├── Decision Ledger
     ├── Lineage Engine
-    ├── Mem0 Bridge
     ├── Retrieval Pipeline
     └── Snapshot Service
     ↓
@@ -73,7 +72,6 @@ Open Loops:
 - Need to clarify sub-agent-context spec
 
 Recent Decisions:
-- Use Mem0 for semantic memory
 - Adopt lineage model for context preservation
 ```
 
@@ -92,7 +90,7 @@ This survives indefinitely, even after multiple compactions.
 
 SAC automatically detects memory questions and synthesizes answers:
 
-- "Why did we decide to use Mem0?"
+- "Why did we decide to use lineage for context preservation?"
 - "What were we working on last week?"
 - "What changed in the architecture?"
 - "What are our active goals?"
@@ -125,7 +123,6 @@ File: `v1/sub-agent-context/config.json`
 ```json
 {
   "storagePath": "~/.general-v1/sac/",
-  "mem0Enabled": true,
   "autoSnapshot": true,
   "autoLineage": true,
   "snapshotFormat": "concise",
@@ -137,7 +134,6 @@ File: `v1/sub-agent-context/config.json`
 
 | Module | Integration |
 |--------|------------|
-| `mem0/` | Semantic facts and relationships stored in Mem0 |
 | `sub-agent/` | Uses "memory" sub-agent for synthesis |
 | `planning/` | Goals feed into planning; decisions tracked |
 | `communication/` | Optional: meta state streams to SuperHive |
@@ -153,7 +149,6 @@ File: `v1/sub-agent-context/config.json`
 
 | Module | Purpose |
 |--------|---------|
-| `mem0/` | Semantic memory (facts, preferences) |
 | `sub-agent/` | Sub-agent spawning |
 | `communication/` | SuperHive bridge |
 | `planning/` | File-based task planning |

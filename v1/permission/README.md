@@ -166,7 +166,6 @@ Even when a tool is allowed, the agent should:
 |--------|-----------------|
 | Planning | Write access for plan files |
 | Mission Control | Write access for tickets |
-| Mem0 | Skill permission to load memory skills |
 | Browser | Bash permission for browser commands |
 
 ## See Also

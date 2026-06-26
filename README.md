@@ -60,8 +60,6 @@ On first boot (no `SUPERHIVE_API_KEY` set), a key is generated and printed to st
 | `/ticket import` | Import `task_plan.md` phases as tickets |
 | `/plan` | Show current plan summary |
 | `/plan next` | Advance to next incomplete phase |
-| `/mem0-search <q>` | Search persistent memory |
-| `/mem0-add <fact>` | Add a fact to memory |
 | `/permission status` | Show active grants and pending requests |
 | `/subagents` | List active sub-agents |
 | `/snapshot` | Generate cognitive snapshot |
@@ -108,7 +106,6 @@ Provider auto-detection order: minimax, anthropic, google, openai, deepseek, gro
 | `v1/docs/` | Command reference |
 | `v1/planning/` | File-based task plans (`task_plan.md`) |
 | `v1/browser/` | Web browsing via browser-use |
-| `v1/mem0/` | Persistent memory |
 | `v1/mission-control/` | Ticket tracking, LLM auto-capture on turn_end |
 | `v1/permission/` | Authority levels (pi-permission-system) |
 | `v1/sub-agent/` | Spawn child agents |
