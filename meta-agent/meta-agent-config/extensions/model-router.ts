@@ -3,9 +3,9 @@
 
 /**
  * Model Router Extension
- * 
+ *
  * Routes tasks to appropriate models based on complexity.
- * 
+ *
  * To implement:
  * 1. Edit this file with your routing logic
  * 2. Update config.json to include this extension

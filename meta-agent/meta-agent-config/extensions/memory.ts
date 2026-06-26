@@ -3,9 +3,9 @@
 
 /**
  * Memory Extension
- * 
+ *
  * Learns from interactions and persists facts across sessions.
- * 
+ *
  * To implement:
  * 1. Edit this file with your memory logic
  * 2. Update config.json to include this extension

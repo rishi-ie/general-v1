@@ -3,9 +3,9 @@
 
 /**
  * Persona Extension
- * 
+ *
  * Injects behavioral cues based on context.
- * 
+ *
  * To implement:
  * 1. Edit this file with your persona logic
  * 2. Update config.json to include this extension

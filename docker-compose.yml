@@ -3,8 +3,8 @@ version: "3.9"
 services:
   superhive:
     build:
-      context .
-      dockerfile Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: superhive
     environment:
       - SUPERHIVE_API_KEY=${SUPERHIVE_API_KEY:-}

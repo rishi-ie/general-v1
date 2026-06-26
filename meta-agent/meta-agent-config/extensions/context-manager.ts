@@ -3,9 +3,9 @@
 
 /**
  * Context Manager Extension
- * 
+ *
  * Actively manages context window to prevent overflow.
- * 
+ *
  * To implement:
  * 1. Edit this file with your context management logic
  * 2. Update config.json to include this extension
