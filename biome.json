@@ -24,7 +24,7 @@
     "lineWidth": 120
   },
   "files": {
-    "includes": [
+    "include": [
       "v1/**/*.ts",
       "meta-agent/meta-agent-config/**/*.ts",
       "meta-agent/meta-agent-config/**/*.md"
@@ -32,7 +32,8 @@
     "ignore": [
       "**/node_modules/**",
       "**/dist/**",
-      "**/.pi/**"
+      "**/.pi/**",
+      "meta-agent/pi/**"
     ]
   }
 }

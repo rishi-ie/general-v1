@@ -245,7 +245,7 @@ if [[ "$CHECK_ONLY" == "true" ]]; then
         for ext in $EXTENSIONS; do
             if [[ -n "$ext" ]]; then
                 EXT_PATH="$CONFIG_DIR/$ext"
-                if [[ ! -f "$EXT_PATH" ]]; then
+                if [[ ! -e "$EXT_PATH" ]]; then
                     echo "[check] ERROR: extension not found: $EXT_PATH" >&2
                     ERRORS=$((ERRORS + 1))
                 fi

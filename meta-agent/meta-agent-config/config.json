@@ -8,9 +8,6 @@
     "v1/communication/extensions/communication/index.ts",
     "v1/superhive/extensions/superhive/index.ts",
 
-    "extensions/mem0-extension.ts",
-    "extensions/permission-extension.ts",
-
     "v1/integrations/mc-sac.ts",
     "v1/integrations/planning-mc.ts",
     "v1/integrations/sac-subagent.ts",
