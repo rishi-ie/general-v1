@@ -39,19 +39,7 @@ export ANTHROPIC_API_KEY=your-key
 ./meta-agent/run.sh --check
 ```
 
-### 4. Docker
-
-```bash
-# Build and run containerized
-docker-compose up --build
-
-# With your API key
-MINIMAX_API_KEY=your-key docker-compose up --build
-```
-
-On first boot (no `SUPERHIVE_API_KEY` set), a key is generated and printed to stdout.
-
-### 5. Package as Portable
+### 4. Package as Portable
 
 ```bash
 # Build a .tar.gz of the agent folder
@@ -160,8 +148,6 @@ All features work offline except LLM responses. The agent boots, registers all s
 - [x] Agent auto-captures decisions as SAC goals (mc-sac)
 - [x] task_plan.md phases sync to SAC goals (planning-mc)
 - [x] Subagent spawn → SAC open loop + SuperHive state
-- [x] Container healthcheck on `GET /health`
-- [x] Docker: `docker-compose up --build` produces working stack
 - [x] Smoke test: `npm run smoke` passes
 - [x] Portable test: `bash scripts/test-portable.sh` passes
 

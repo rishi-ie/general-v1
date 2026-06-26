@@ -102,21 +102,6 @@ Provider auto-detection order: minimax, anthropic, google, openai, deepseek, gro
 /help                    List all available commands
 ```
 
-## Docker
-
-### Environment Variables
-
-```bash
-MINIMAX_API_KEY=...           # Required for LLM responses
-SUPERHIVE_API_KEY=...         # Optional; auto-generated on first boot if unset
-PI_OFFLINE=1                  # Run in offline mode
-```
-
-### Endpoints
-
-- `ws://localhost:7711` — SuperHive WS host
-- `GET http://localhost:7711/health` — Health check (returns `{"status":"ok"}`)
-
 ## Configuration
 
 Configuration is in `meta-agent/meta-agent-config/`:

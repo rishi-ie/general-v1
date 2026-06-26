@@ -18,6 +18,8 @@ All notable changes to general v1 are documented here.
 
 - **mem0 module** (`v1/mem0/`): Long-term semantic memory module removed entirely. `Mem0Memory` type, `mem0Enabled` config, `mem0_memories` retrieval context, and all `searchMemories`/`addMemory`/`initMem0Bridge` calls removed from SAC.
 
+- **Docker containerization**: `Dockerfile`, `docker-compose.yml`, `entrypoint.sh`, `supervisord.conf`, `.dockerignore` removed. Container healthcheck and `GET /health` endpoint no longer available. CI pipeline references removed. Docker is no longer a supported deployment method — use portable packaging (`./meta-agent/package.sh`) instead.
+
 ## [1.0.0] — 2026-06-26
 
 ### Added
