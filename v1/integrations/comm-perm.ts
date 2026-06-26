@@ -2,19 +2,13 @@ import { requestPermission } from "../communication/extensions/communication/ind
 
 type PermissionDecision = { decision: "allow" | "deny"; reason?: string; remember?: boolean };
 
-const SENSITIVE_TOOLS = new Set([
-  "file_delete",
-  "bash",
-  "command_execute",
-  "sub_agent_spawn",
-  "network_request",
-]);
+const SENSITIVE_TOOLS = new Set(["file_delete", "bash", "command_execute", "sub_agent_spawn", "network_request"]);
 
-let permissionCache = new Map<string, PermissionDecision>();
+const permissionCache = new Map<string, PermissionDecision>();
 
 function getCachedPermission(tool: string): PermissionDecision | null {
   const cached = permissionCache.get(tool);
-  if (cached && cached.remember) return cached;
+  if (cached?.remember) return cached;
   return null;
 }
 
@@ -22,7 +16,7 @@ export async function checkPermission(
   tool: string,
   args: unknown,
   reason: string,
-  severity: "low" | "medium" | "high" | "critical" = "medium"
+  severity: "low" | "medium" | "high" | "critical" = "medium",
 ): Promise<PermissionDecision> {
   const cached = getCachedPermission(tool);
   if (cached) return cached;
@@ -38,11 +32,12 @@ export async function checkPermission(
   return result;
 }
 
-export default function commPermIntegration(
-  pi: { on(event: string, cb: () => void | Promise<void>): void }
-): void {
+export default function commPermIntegration(pi: { on(event: string, cb: () => void | Promise<void>): void }): void {
   pi.on("tool_call", async (event: { toolName: string; toolCallId: string; input: unknown }, ctx: unknown) => {
-    const extCtx = ctx as { sendMessage?: (msg: unknown) => void; ui?: { notify?: (msg: string, type: string) => void } };
+    const extCtx = ctx as {
+      sendMessage?: (msg: unknown) => void;
+      ui?: { notify?: (msg: string, type: string) => void };
+    };
     const tool = event.toolName;
     const reason = `Tool call: ${tool}`;
     const result = await checkPermission(tool, event.input, reason, "medium");

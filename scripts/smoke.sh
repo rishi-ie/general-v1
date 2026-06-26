@@ -6,9 +6,10 @@ ROOT_DIR="$SCRIPT_DIR/.."
 
 echo "=== general v1 smoke test ==="
 
+cd "$ROOT_DIR"
+
 # 1. Check mode: config validation
 echo "[1/4] Running --check (config validation)..."
-cd "$ROOT_DIR"
 if ./meta-agent/run.sh --check 2>&1; then
     echo "  PASS: config validation"
 else
@@ -16,16 +17,18 @@ else
     exit 1
 fi
 
-# 2. Offline boot: should start, print banner, exit cleanly on /exit
+# 2. Offline boot: /exit makes it exit quickly, no timeout needed
 echo "[2/4] Running --offline boot (banner + /exit)..."
-echo "/exit" | timeout 30 ./meta-agent/run.sh --offline 2>&1 | head -30 | grep -q "general v1" && {
+OUTPUT=$(echo "/exit" | ./meta-agent/run.sh --offline 2>&1 | head -30 || true)
+if echo "$OUTPUT" | grep -q "general v1"; then
     echo "  PASS: offline boot + banner"
-} || {
-    echo "  FAIL: offline boot (check output above)"
+else
+    echo "  FAIL: offline boot"
+    echo "  Output: $OUTPUT"
     exit 1
-}
+fi
 
-# 3. Verify all extension files exist
+# 3. Verify all extension files exist (-e checks dirs OR files)
 echo "[3/4] Checking extension files exist..."
 MISSING=0
 CONFIG_FILE="$ROOT_DIR/meta-agent/meta-agent-config/config.json"
@@ -33,7 +36,7 @@ if command -v jq >/dev/null 2>&1; then
     while IFS= read -r ext; do
         [[ -z "$ext" ]] && continue
         EXT_PATH="$ROOT_DIR/meta-agent/meta-agent-config/$ext"
-        if [[ ! -f "$EXT_PATH" ]]; then
+        if [[ ! -e "$EXT_PATH" ]]; then
             echo "  MISSING: $EXT_PATH"
             MISSING=$((MISSING + 1))
         fi

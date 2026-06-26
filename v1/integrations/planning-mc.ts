@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { getMetaState, addGoal, updateGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
+import { addGoal, getMetaState, updateGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
 
 const PLAN_FILE = "task_plan.md";
 const ACTIVE_PLAN_FILE = ".planning/.active_plan";
@@ -71,9 +71,7 @@ function ensureGoalsMap(): void {
   }
 }
 
-export default function planningMcIntegration(
-  pi: { on(event: string, cb: () => void | Promise<void>): void }
-): void {
+export default function planningMcIntegration(pi: { on(event: string, cb: () => void | Promise<void>): void }): void {
   pi.on("turn_end", async () => {
     try {
       ensureGoalsMap();

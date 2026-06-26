@@ -1,8 +1,5 @@
-import {
-  addGoal,
-  addOpenLoop,
-} from "../sub-agent-context/extensions/sac/meta-state.js";
 import { randomUUID } from "crypto";
+import { addGoal, addOpenLoop } from "../sub-agent-context/extensions/sac/meta-state.js";
 
 interface SubAgentResult {
   id?: string;
@@ -28,8 +25,9 @@ function spawnSubAgent(goal: string, cfg: unknown): SubAgentResult {
   return { id, goal, status: "running" };
 }
 
-export default function sacSubagentIntegration(
-  pi: { on(event: string, cb: () => void | Promise<void>): void; registerTool(opts: {
+export default function sacSubagentIntegration(pi: {
+  on(event: string, cb: () => void | Promise<void>): void;
+  registerTool(opts: {
     name: string;
     label: string;
     description: string;
@@ -39,10 +37,10 @@ export default function sacSubagentIntegration(
       params: Record<string, unknown>,
       signal: AbortSignal,
       onUpdate: (update: unknown) => void,
-      ctx: unknown
+      ctx: unknown,
     ) => Promise<{ content: Array<{ type: string; text: string }>; details?: Record<string, unknown> }>;
-  }): void }
-): void {
+  }): void;
+}): void {
   pi.registerTool({
     name: "spawn_sub_agent",
     label: "Spawn Sub-Agent",

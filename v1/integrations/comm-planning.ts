@@ -50,9 +50,7 @@ function extractCurrentPhase(cwd: string): string | undefined {
   return undefined;
 }
 
-export default function commPlanningIntegration(
-  pi: { on(event: string, cb: () => void | Promise<void>): void }
-): void {
+export default function commPlanningIntegration(pi: { on(event: string, cb: () => void | Promise<void>): void }): void {
   pi.on("before_agent_start", async (event: { prompt?: string }, ctx: unknown) => {
     try {
       const extCtx = ctx as { cwd?: string };

@@ -1,6 +1,6 @@
-import { addGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
 import * as fs from "fs";
 import * as path from "path";
+import { addGoal } from "../sub-agent-context/extensions/sac/meta-state.js";
 
 const CAPTURE_PATTERNS = [
   /^(?:will|going to|gonna|plan to|should)\s+(.+)/i,
@@ -28,9 +28,7 @@ function extractGoals(text: string): string[] {
   return goals;
 }
 
-export default function mcSacIntegration(
-  pi: { on(event: string, cb: () => void | Promise<void>): void }
-): void {
+export default function mcSacIntegration(pi: { on(event: string, cb: () => void | Promise<void>): void }): void {
   pi.on("turn_end", async (event: { messages?: Array<{ content?: string }> }) => {
     try {
       const lastMsg = event.messages?.[event.messages.length - 1];
