@@ -13,6 +13,19 @@ set -euo pipefail
 #   -n "name"      Session name
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source portable paths helper if available (sets GENERAL_ROOT, GENERAL_STATE_DIR, etc.)
+if [[ -f "$SCRIPT_DIR/paths.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/paths.sh"
+fi
+
+# When invoked via the portable agent.sh entry point, GENERAL_ROOT is the agent folder.
+# Otherwise, fall back to repo layout: meta-agent/ -> repo root.
+if [[ -z "${GENERAL_ROOT:-}" ]]; then
+  export GENERAL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+
 CONFIG_DIR="$SCRIPT_DIR/meta-agent-config"
 PI_DIR="$SCRIPT_DIR/pi"
 LOCAL_PI_DIR="$SCRIPT_DIR/.pi"

@@ -47,7 +47,7 @@ In `v1/lancedb/config.json`:
 
 ```json
 {
-  "storagePath": "~/.general-v1/vectors/",
+  "storagePath": "./.general-v1/vectors/",
   "enabled": true,
   "embedding": {
     "provider": "auto",
@@ -66,7 +66,7 @@ Provider resolution order: `minimax → openai → anthropic → voyage`.
 
 ## Storage
 
-All data stored at `~/.general-v1/vectors/` as Lance columnar files:
+All data stored at `<agent-folder>/.general-v1/vectors/` as Lance columnar files:
 - `decisions.lance/`
 - `epochs.lance/`
 - `events.lance/`

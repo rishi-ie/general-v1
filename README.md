@@ -39,6 +39,23 @@ export ANTHROPIC_API_KEY=your-key
 ./meta-agent/run.sh --check
 ```
 
+### Portable Mode
+
+The agent can be packaged as a single self-contained folder that runs anywhere — no dependencies on the original install path.
+
+```bash
+# Build a portable package
+./meta-agent/package.sh my-agent /tmp/my-agent
+# Produces: dist/my-agent.tar.gz
+
+# Extract anywhere and run
+tar -xzf dist/my-agent.tar.gz -C ~/agents
+cd ~/agents/my-agent
+./agent.sh -p "hello"
+```
+
+The folder's identity (ULID) is generated on first run and stored in `.general-v1/.identity`. Move or copy the folder freely — the identity persists. See [docs/portable.md](docs/portable.md) for details.
+
 ### 4. Docker
 
 ```bash

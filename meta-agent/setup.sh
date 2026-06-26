@@ -2,6 +2,19 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source portable paths helper if available
+if [[ -f "$SCRIPT_DIR/paths.sh" ]]; then
+  # shellcheck disable=SC1091
+  source "$SCRIPT_DIR/paths.sh"
+fi
+
+# When invoked via agent.sh, GENERAL_ROOT is the agent folder (== repo root in portable mode).
+# Otherwise, fall back to repo layout: meta-agent/ -> repo root is ../.
+if [[ -z "${GENERAL_ROOT:-}" ]]; then
+  export GENERAL_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+
 CONFIG_DIR="$SCRIPT_DIR/meta-agent-config"
 PI_DIR="$SCRIPT_DIR/pi"
 LOCAL_PI_DIR="$SCRIPT_DIR/.pi"
@@ -14,18 +27,18 @@ fi
 
 echo "[setup] Creating v1 symlinks in meta-agent-config..."
 mkdir -p "$CONFIG_DIR/v1"
-ln -sf "$SCRIPT_DIR/../v1/browser"       "$CONFIG_DIR/v1/browser"
-ln -sf "$SCRIPT_DIR/../v1/communication" "$CONFIG_DIR/v1/communication"
-ln -sf "$SCRIPT_DIR/../v1/docs"          "$CONFIG_DIR/v1/docs"
-ln -sf "$SCRIPT_DIR/../v1/identity"      "$CONFIG_DIR/v1/identity"
-ln -sf "$SCRIPT_DIR/../v1/mission-control" "$CONFIG_DIR/v1/mission-control"
-ln -sf "$SCRIPT_DIR/../v1/permission"    "$CONFIG_DIR/v1/permission"
-ln -sf "$SCRIPT_DIR/../v1/planning"      "$CONFIG_DIR/v1/planning"
-ln -sf "$SCRIPT_DIR/../v1/sub-agent"     "$CONFIG_DIR/v1/sub-agent"
-ln -sf "$SCRIPT_DIR/../v1/sub-agent-context" "$CONFIG_DIR/v1/sub-agent-context"
-ln -sf "$SCRIPT_DIR/../v1/superhive"    "$CONFIG_DIR/v1/superhive"
-ln -sf "$SCRIPT_DIR/../v1/integrations"   "$CONFIG_DIR/v1/integrations"
-ln -sf "$SCRIPT_DIR/../v1/lancedb"         "$CONFIG_DIR/v1/lancedb"
+ln -sf "$GENERAL_ROOT/v1/browser"       "$CONFIG_DIR/v1/browser"
+ln -sf "$GENERAL_ROOT/v1/communication" "$CONFIG_DIR/v1/communication"
+ln -sf "$GENERAL_ROOT/v1/docs"          "$CONFIG_DIR/v1/docs"
+ln -sf "$GENERAL_ROOT/v1/identity"      "$CONFIG_DIR/v1/identity"
+ln -sf "$GENERAL_ROOT/v1/mission-control" "$CONFIG_DIR/v1/mission-control"
+ln -sf "$GENERAL_ROOT/v1/permission"    "$CONFIG_DIR/v1/permission"
+ln -sf "$GENERAL_ROOT/v1/planning"      "$CONFIG_DIR/v1/planning"
+ln -sf "$GENERAL_ROOT/v1/sub-agent"     "$CONFIG_DIR/v1/sub-agent"
+ln -sf "$GENERAL_ROOT/v1/sub-agent-context" "$CONFIG_DIR/v1/sub-agent-context"
+ln -sf "$GENERAL_ROOT/v1/superhive"    "$CONFIG_DIR/v1/superhive"
+ln -sf "$GENERAL_ROOT/v1/integrations"   "$CONFIG_DIR/v1/integrations"
+ln -sf "$GENERAL_ROOT/v1/lancedb"         "$CONFIG_DIR/v1/lancedb"
 
 echo "[setup] Adding pi field to v1 package.json files missing it..."
 add_pi_field() {
@@ -49,7 +62,7 @@ with open('$pkg_json', 'w') as f:
     fi
 }
 
-add_pi_field "$SCRIPT_DIR/../v1/mission-control/package.json" \
+add_pi_field "$GENERAL_ROOT/v1/mission-control/package.json" \
     "extensions/mission-control/index.ts" \
     "SKILL.md"
 
@@ -73,5 +86,18 @@ echo "[setup] Creating local .pi directory..."
 mkdir -p "$LOCAL_PI_DIR/agent/sessions"
 mkdir -p "$LOCAL_PI_DIR/agent/bin"
 mkdir -p "$LOCAL_PI_DIR/agent/prompts"
+
+echo "[setup] Creating portable state directory (.general-v1)..."
+mkdir -p "$GENERAL_SAC_DIR" "$GENERAL_VECTORS_DIR" "$GENERAL_MC_DIR" "$GENERAL_AUDIT_DIR"
+
+if [[ ! -f "$GENERAL_IDENTITY_FILE" ]]; then
+  if command -v node >/dev/null 2>&1 && [[ -d "$GENERAL_ROOT/node_modules/ulid" ]]; then
+    NEW_ULID="$(cd "$GENERAL_ROOT" && node -e "console.log(require('ulid').ulid())")"
+  else
+    NEW_ULID="$(printf '%012x' "$(date +%s)" | tr 'a-f' 'A-F')-0000-0000-0000-000000000000"
+  fi
+  printf '%s' "$NEW_ULID" > "$GENERAL_IDENTITY_FILE"
+  echo "  identity: $NEW_ULID"
+fi
 
 echo "[setup] Done."

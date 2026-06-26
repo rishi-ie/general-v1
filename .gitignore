@@ -23,5 +23,6 @@ v1/*/*
 !v1/lancedb/**
 v1/sub-agent/src/src/
 .mission-control/
+.general-v1/
 meta-agent/.setup-complete
 meta-agent/meta-agent-config/extensions/mem0-skills

@@ -27,7 +27,7 @@ export class LanceDBExtension {
     this.offline = offline;
 
     const defaultConfig: LanceDBConfig = {
-      storagePath: "~/.general-v1/vectors/",
+      storagePath: "./.general-v1/vectors/",
       enabled: true,
       embedding: {
         provider: "auto",

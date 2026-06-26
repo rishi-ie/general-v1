@@ -69,4 +69,4 @@ Auto-indexes these SAC events when online (provider API available):
 
 ## Storage Location
 
-`~/.general-v1/vectors/` — local Lance columnar files, no external service required.
+`<agent-folder>/.general-v1/vectors/` — local Lance columnar files, no external service required. Resolves to `$GENERAL_ROOT/.general-v1/vectors/` at runtime.

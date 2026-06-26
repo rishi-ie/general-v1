@@ -6,6 +6,12 @@ All notable changes to general v1 are documented here.
 
 ### Added
 
+- **Portable agent packaging**: Agent can be packaged as a single self-contained folder that runs anywhere on disk. New `./agent.sh` entry point self-resolves its absolute path and exports `GENERAL_ROOT` env var. All storage paths (`~/.general-v1/sac/`, `~/.general-v1/vectors/`, `~/.mission-control/`) replaced with relative paths inside the folder (`./.general-v1/sac/`, `./.general-v1/vectors/`, `./.general-v1/mission-control/`). Each folder gets a unique identity (ULID in `.general-v1/.identity`) generated on first run. Copy/move folder = identity preserved; delete `.general-v1/` = fresh identity. New `meta-agent/paths.sh` is the single source of truth for path resolution; all TS modules updated with `expandPath()` / `resolveStoragePath()` helpers that honor `GENERAL_ROOT` and fall back to legacy `~/.general-v1/` paths for existing users.
+
+- **`meta-agent/package.sh`**: Build script that creates a `.tar.gz` of the agent folder with all `node_modules/` and Pi agent bundled. Resolves symlinks to real files. Default output: `dist/general-v1-portable.tar.gz`.
+
+- **`scripts/test-portable.sh`**: 7-step test that verifies build → extract → run → identity generation → copy preserves identity → move preserves identity → fresh copy gets distinct identity. All 7 PASS.
+
 - **LanceDB module** (`v1/lancedb/`): Semantic memory layer using embedded LanceDB vector search. Provides hybrid vector + full-text search over indexed decisions, epochs, agent responses, and tool results. Auto-indexes SAC events when provider API is available (MiniMax, OpenAI, Anthropic, or Voyage). Exposes `/semantic-search`, `/semantic-add`, `/semantic-tour`, `/semantic-status`, `/semantic-forget` commands and a `semantic_search` tool callable by the LLM. Provider auto-detected from `MINIMAX_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `VOYAGE_API_KEY`. Online-only (disables gracefully in `--offline` mode).
 
 ### Removed

@@ -76,7 +76,7 @@ export interface EmbedderConfig {
 
 export function createDefaultConfig(): LanceDBConfig {
   return {
-    storagePath: "~/.general-v1/vectors/",
+    storagePath: "./.general-v1/vectors/",
     enabled: true,
     embedding: {
       provider: "auto",

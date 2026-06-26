@@ -195,7 +195,7 @@ export function createDefaultMetaState(): MetaState {
 
 export function createDefaultConfig(): SACConfig {
   return {
-    storagePath: "~/.general-v1/sac/",
+    storagePath: "./.general-v1/sac/",
     autoSnapshot: true,
     autoLineage: true,
     memoryQuestionDetection: {

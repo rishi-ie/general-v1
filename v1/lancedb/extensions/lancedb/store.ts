@@ -23,7 +23,7 @@ function getSchema(dimensions: number): arrow.Schema {
 }
 
 function resolvePath(storagePath: string): string {
-  return storagePath.replace("~", os.homedir());
+  return resolveStoragePath(storagePath);
 }
 
 export class LanceStore {

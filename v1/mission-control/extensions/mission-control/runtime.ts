@@ -327,8 +327,12 @@ function registerCommands(pi: ExtensionAPI, state: RuntimeState): void {
 export default function missionControlExtension(pi: ExtensionAPI): void {
   let storeInitialized = false;
 
+  const defaultCwd = process.env.GENERAL_ROOT
+    ? `${process.env.GENERAL_ROOT}/.general-v1/mission-control`
+    : process.cwd();
+
   const state: RuntimeState = {
-    store: new FileTicketStore(process.cwd()),
+    store: new FileTicketStore(defaultCwd),
     conversationBuffer: [],
     pendingConfirmations: new Map(),
   };
@@ -337,7 +341,7 @@ export default function missionControlExtension(pi: ExtensionAPI): void {
 
   pi.on("session_start", async (_event, ctx) => {
     if (!storeInitialized) {
-      state.store = new FileTicketStore(ctx.cwd);
+      state.store = new FileTicketStore(ctx.cwd || defaultCwd);
       storeInitialized = true;
     }
     state.conversationBuffer = [];
