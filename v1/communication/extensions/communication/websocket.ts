@@ -1,7 +1,7 @@
-import WebSocket from 'ws';
-import { EventEmitter } from 'events';
-import { Envelope, PROTOCOL_VERSION } from './types';
-import { generateId } from './envelope';
+import { EventEmitter } from "events";
+import WebSocket from "ws";
+import { generateId } from "./envelope";
+import { type Envelope, PROTOCOL_VERSION } from "./types";
 
 export interface WsConfig {
   url: string;
@@ -22,7 +22,10 @@ export class CommunicationSocket extends EventEmitter {
   private connected = false;
   private pendingRequests = new Map<string, (env: Envelope) => void>();
 
-  constructor(private config: WsConfig, private log: (msg: string, data?: Record<string, unknown>) => void) {
+  constructor(
+    private config: WsConfig,
+    private log: (msg: string, data?: Record<string, unknown>) => void,
+  ) {
     super();
   }
 
@@ -30,7 +33,7 @@ export class CommunicationSocket extends EventEmitter {
     this.intentionalClose = false;
     const headers: Record<string, string> = {};
     if (this.config.apiKey) {
-      headers['Authorization'] = `Bearer ${this.config.apiKey}`;
+      headers["Authorization"] = `Bearer ${this.config.apiKey}`;
     }
 
     return new Promise((resolve, reject) => {
@@ -41,16 +44,16 @@ export class CommunicationSocket extends EventEmitter {
         return;
       }
 
-      this.ws.on('open', () => {
+      this.ws.on("open", () => {
         this.connected = true;
         this.retry = 0;
         this.log(`connected to ${this.config.url}`);
         this.startHeartbeat();
-        this.emit('connected');
+        this.emit("connected");
         resolve();
       });
 
-      this.ws.on('message', (data) => {
+      this.ws.on("message", (data) => {
         try {
           const env = JSON.parse(data.toString()) as Envelope;
           if (env.v !== PROTOCOL_VERSION) {
@@ -64,30 +67,30 @@ export class CommunicationSocket extends EventEmitter {
             resolver(env);
           }
 
-          this.emit('message', env);
+          this.emit("message", env);
         } catch (err) {
           this.log(`failed to parse message: ${String(err)}`);
         }
       });
 
-      this.ws.on('close', (code, reason) => {
+      this.ws.on("close", (code, reason) => {
         this.connected = false;
         this.stopHeartbeat();
         this.log(`disconnected: ${code} ${reason.toString()}`);
-        this.emit('disconnected', code, reason.toString());
+        this.emit("disconnected", code, reason.toString());
 
         if (!this.intentionalClose) {
           this.scheduleReconnect();
         }
       });
 
-      this.ws.on('error', (err) => {
+      this.ws.on("error", (err) => {
         this.log(`socket error: ${String(err)}`);
-        this.emit('error', err);
+        this.emit("error", err);
       });
 
-      this.ws.on('pong', () => {
-        this.emit('pong');
+      this.ws.on("pong", () => {
+        this.emit("pong");
       });
     });
   }
@@ -98,7 +101,7 @@ export class CommunicationSocket extends EventEmitter {
 
     if (maxAttempts > 0 && this.retry >= maxAttempts) {
       this.log(`max reconnect attempts (${maxAttempts}) reached`);
-      this.emit('reconnect_failed');
+      this.emit("reconnect_failed");
       return;
     }
 
@@ -118,7 +121,7 @@ export class CommunicationSocket extends EventEmitter {
     this.heartbeatTimer = setInterval(() => {
       if (this.ws?.readyState === WebSocket.OPEN) {
         this.ws.ping();
-        this.emit('heartbeat');
+        this.emit("heartbeat");
       }
     }, this.config.heartbeatIntervalMs);
   }
@@ -172,7 +175,7 @@ export class CommunicationSocket extends EventEmitter {
       if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
         clearTimeout(timer);
         this.pendingRequests.delete(id);
-        reject(new Error('not connected'));
+        reject(new Error("not connected"));
         return;
       }
 
@@ -194,7 +197,7 @@ export class CommunicationSocket extends EventEmitter {
     });
   }
 
-  close(code = 1000, reason = 'agent shutting down'): void {
+  close(code = 1000, reason = "agent shutting down"): void {
     this.intentionalClose = true;
     this.stopHeartbeat();
     if (this.retryTimer) {

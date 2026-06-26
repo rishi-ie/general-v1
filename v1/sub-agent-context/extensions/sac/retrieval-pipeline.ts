@@ -1,18 +1,15 @@
-import type { RetrievalContext, MetaState, Goal, Decision, Epoch, Mem0Memory } from "./types";
-import { getMetaState } from "./meta-state";
-import { getRecentDecisions, getDecisions } from "./decision-ledger";
+import { getDecisions, getRecentDecisions } from "./decision-ledger";
 import { getAllEpochs, getEpochsByProject } from "./lineage-engine";
 import { searchMemories } from "./mem0-bridge";
 import { extractMemoryQuestionDetails } from "./memory-question-router";
+import { getMetaState } from "./meta-state";
+import type { Decision, Epoch, Goal, Mem0Memory, MetaState, RetrievalContext } from "./types";
 
 function log(msg: string, data?: Record<string, unknown>): void {
   console.log(`[sac] ${msg}`, data ?? {});
 }
 
-export async function retrieve(
-  question: string,
-  sessionId: string
-): Promise<RetrievalContext> {
+export async function retrieve(question: string, sessionId: string): Promise<RetrievalContext> {
   log("retrieval started", { question: question.slice(0, 50), session_id: sessionId });
 
   const details = extractMemoryQuestionDetails(question);
@@ -54,9 +51,7 @@ export async function retrieve(
 
   const activeProjects = meta_state.projects.filter((p) => p.status === "active");
   if (activeProjects.length > 0) {
-    recent_activity = activeProjects
-      .map((p) => `${p.name}: ${p.recent_activity}`)
-      .join("; ");
+    recent_activity = activeProjects.map((p) => `${p.name}: ${p.recent_activity}`).join("; ");
   }
 
   const context: RetrievalContext = {

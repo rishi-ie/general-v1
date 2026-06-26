@@ -5,7 +5,7 @@ export type EventHandler = (event: ObservedEvent) => void | Promise<void>;
 
 export class EventObserver {
   private handlers: EventHandler[] = [];
-  private sessionId: string = "";
+  private sessionId = "";
 
   onEvent(handler: EventHandler): void {
     this.handlers.push(handler);
@@ -19,7 +19,12 @@ export class EventObserver {
     return this.sessionId;
   }
 
-  async emit(type: EventType, content: string, ctx: ExtensionContext, metadata?: Record<string, unknown>): Promise<void> {
+  async emit(
+    type: EventType,
+    content: string,
+    ctx: ExtensionContext,
+    metadata?: Record<string, unknown>,
+  ): Promise<void> {
     const event: ObservedEvent = {
       type,
       timestamp: Date.now(),

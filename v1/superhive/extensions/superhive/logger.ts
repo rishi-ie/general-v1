@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from "events";
 
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface LogEntry {
   ts: number;
@@ -20,7 +20,10 @@ const LEVEL_PRIORITY: Record<LogLevel, number> = {
 export class Logger extends EventEmitter {
   private minLevel: LogLevel;
 
-  constructor(private ctx: string, minLevel: LogLevel = 'info') {
+  constructor(
+    private ctx: string,
+    minLevel: LogLevel = "info",
+  ) {
     super();
     this.minLevel = minLevel;
   }
@@ -30,19 +33,19 @@ export class Logger extends EventEmitter {
   }
 
   debug(msg: string, data?: Record<string, unknown>): void {
-    this.log('debug', msg, data);
+    this.log("debug", msg, data);
   }
 
   info(msg: string, data?: Record<string, unknown>): void {
-    this.log('info', msg, data);
+    this.log("info", msg, data);
   }
 
   warn(msg: string, data?: Record<string, unknown>): void {
-    this.log('warn', msg, data);
+    this.log("warn", msg, data);
   }
 
   error(msg: string, data?: Record<string, unknown>): void {
-    this.log('error', msg, data);
+    this.log("error", msg, data);
   }
 
   private log(level: LogLevel, msg: string, data?: Record<string, unknown>): void {
@@ -57,16 +60,16 @@ export class Logger extends EventEmitter {
     };
 
     const str = this.format(entry);
-    const fn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
+    const fn = level === "error" ? console.error : level === "warn" ? console.warn : console.log;
     fn(str);
 
-    this.emit('entry', entry);
+    this.emit("entry", entry);
   }
 
   private format(entry: LogEntry): string {
     const iso = new Date(entry.ts).toISOString();
-    const ctx = entry.ctx ? `[${entry.ctx}]` : '';
-    const data = entry.data ? ` ${JSON.stringify(entry.data)}` : '';
+    const ctx = entry.ctx ? `[${entry.ctx}]` : "";
+    const data = entry.data ? ` ${JSON.stringify(entry.data)}` : "";
     return `${iso} ${entry.level.toUpperCase()} ${ctx} ${entry.msg}${data}`;
   }
 }

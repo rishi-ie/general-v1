@@ -1,9 +1,9 @@
-import { EventEmitter } from 'events';
-import { InterAgentMessage } from '../types';
-import { AgentRegistry } from '../registry/agent-registry';
-import { Store } from '../persistence/store';
-import { Logger } from '../logger';
-import { messagesPath, todayDate } from '../persistence/paths';
+import { EventEmitter } from "events";
+import type { Logger } from "../logger";
+import { messagesPath, todayDate } from "../persistence/paths";
+import type { Store } from "../persistence/store";
+import type { AgentRegistry } from "../registry/agent-registry";
+import type { InterAgentMessage } from "../types";
 
 export interface DeliveryResult {
   deliveredTo: string[];
@@ -18,15 +18,12 @@ export class Broker extends EventEmitter {
   constructor(
     private registry: AgentRegistry,
     private store: Store,
-    private log?: Logger
+    private log?: Logger,
   ) {
     super();
   }
 
-  async route(
-    from: string,
-    msg: Omit<InterAgentMessage, 'from' | 'receivedAt'>
-  ): Promise<DeliveryResult> {
+  async route(from: string, msg: Omit<InterAgentMessage, "from" | "receivedAt">): Promise<DeliveryResult> {
     const full: InterAgentMessage = {
       ...msg,
       from,
@@ -54,8 +51,8 @@ export class Broker extends EventEmitter {
 
     if (msg.to) {
       const target = this.registry.get(msg.to);
-      if (!target || target.status === 'offline') {
-        this.log?.warn('broker: delivery failed — agent offline', { to: msg.to });
+      if (!target || target.status === "offline") {
+        this.log?.warn("broker: delivery failed — agent offline", { to: msg.to });
         return { deliveredTo: [], dropped: true };
       }
       this.deliverToAgent(msg.to, full);
@@ -70,12 +67,12 @@ export class Broker extends EventEmitter {
       this.groups.set(groupId, new Set());
     }
     this.groups.get(groupId)!.add(agentId);
-    this.log?.debug('broker: agent joined group', { groupId, agentId });
+    this.log?.debug("broker: agent joined group", { groupId, agentId });
   }
 
   leaveGroup(groupId: string, agentId: string): void {
     this.groups.get(groupId)?.delete(agentId);
-    this.log?.debug('broker: agent left group', { groupId, agentId });
+    this.log?.debug("broker: agent left group", { groupId, agentId });
   }
 
   getGroupMembers(groupId: string): string[] {
@@ -87,9 +84,7 @@ export class Broker extends EventEmitter {
   }
 
   getHistoryForAgent(agentId: string, limit = 50): InterAgentMessage[] {
-    return this.history
-      .filter((m) => m.from === agentId || m.to === agentId || m.to === '*')
-      .slice(-limit);
+    return this.history.filter((m) => m.from === agentId || m.to === agentId || m.to === "*").slice(-limit);
   }
 
   private async appendHistory(msg: InterAgentMessage): Promise<void> {
@@ -100,13 +95,13 @@ export class Broker extends EventEmitter {
 
     try {
       const date = todayDate();
-      await this.store.append(messagesPath(this.store['dir'], date), msg);
+      await this.store.append(messagesPath(this.store["dir"], date), msg);
     } catch (err) {
-      this.log?.error('broker: failed to append message to history', { error: String(err) });
+      this.log?.error("broker: failed to append message to history", { error: String(err) });
     }
   }
 
   private deliverToAgent(agentId: string, msg: InterAgentMessage): void {
-    this.emit('deliver', agentId, msg);
+    this.emit("deliver", agentId, msg);
   }
 }

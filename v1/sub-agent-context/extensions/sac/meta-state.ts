@@ -1,20 +1,16 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { ulid } from "ulid";
+import { type EventObserver, classifyContent } from "./event-observer";
+import { ensureStorageDir, readMetaState, writeMetaState } from "./storage/store";
 import {
-  type MetaState,
-  type Identity,
-  type Project,
   type Goal,
+  type Identity,
+  type MetaState,
   type OpenLoop,
+  type Project,
   type Relationship,
   createDefaultMetaState,
 } from "./types";
-import {
-  ensureStorageDir,
-  readMetaState,
-  writeMetaState,
-} from "./storage/store";
-import { EventObserver, classifyContent } from "./event-observer";
 import type { ObservedEvent } from "./types";
 
 let metaState: MetaState = createDefaultMetaState();
@@ -231,10 +227,7 @@ export function setContextSummary(summary: string): void {
   schedulePersist(config.storagePath);
 }
 
-export function initMetaStateModule(
-  observer: EventObserver,
-  cfg: { storagePath?: string }
-): void {
+export function initMetaStateModule(observer: EventObserver, cfg: { storagePath?: string }): void {
   config = cfg;
   observer.onEvent(handleEvent);
 }

@@ -44,7 +44,7 @@ export interface AgentRecord {
   connectionId: string;
 }
 
-export type AgentStatus = 'connecting' | 'online' | 'away' | 'busy' | 'offline';
+export type AgentStatus = "connecting" | "online" | "away" | "busy" | "offline";
 
 export interface PresenceEntry {
   agentId: string;
@@ -58,7 +58,7 @@ export interface InterAgentMessage {
   to?: string;
   group?: string;
   broadcast?: boolean;
-  kind: 'text' | 'request' | 'response' | 'event';
+  kind: "text" | "request" | "response" | "event";
   payload: unknown;
   from: string;
   receivedAt: number;
@@ -86,13 +86,13 @@ export interface PendingRequest {
   tool: string;
   args: unknown;
   reason: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   requestedAt: number;
   resolve?: (d: PermissionDecision) => void;
 }
 
 export interface PermissionDecision {
-  decision: 'allow' | 'deny';
+  decision: "allow" | "deny";
   reason?: string;
   remember?: boolean;
 }
@@ -118,7 +118,7 @@ export interface AgentState {
 export interface SubAgentStatus {
   id: string;
   type: string;
-  status: 'running' | 'paused' | 'done' | 'failed';
+  status: "running" | "paused" | "done" | "failed";
 }
 
 export interface AuditEvent {
@@ -130,12 +130,12 @@ export interface AuditEvent {
 }
 
 export interface SettingsPatch {
-  op: 'add' | 'remove' | 'replace' | 'test';
+  op: "add" | "remove" | "replace" | "test";
   path: string;
   value?: unknown;
 }
 
-export type HostCommand = 'reload' | 'restart' | 'pause' | 'resume';
+export type HostCommand = "reload" | "restart" | "pause" | "resume";
 
 export interface RendererMessageMap {
   LIST_AGENTS: Record<string, never>;
@@ -147,7 +147,7 @@ export interface RendererMessageMap {
     to?: string;
     group?: string;
     broadcast?: boolean;
-    kind: InterAgentMessage['kind'];
+    kind: InterAgentMessage["kind"];
     payload: unknown;
   };
   REVOKE_AUTHORITY: { grantId: string };
@@ -160,14 +160,14 @@ export interface HostMessageMap {
   AGENT_CONNECTED: { agent: AgentRecord };
   AGENT_DISCONNECTED: { agentId: string; reason: string };
   AGENT_STATE_CHANGED: { agentId: string; state: AgentState; metrics?: Metrics };
-  PERMISSION_REQUESTED: { agentId: string; request: Omit<PendingRequest, 'resolve'> };
+  PERMISSION_REQUESTED: { agentId: string; request: Omit<PendingRequest, "resolve"> };
   PERMISSION_RESOLVED: { agentId: string; requestId: string; decision: PermissionDecision };
   INTER_AGENT_MESSAGE: { message: InterAgentMessage };
-  AUTHORITY_CHANGED: { change: 'granted' | 'revoked'; grant: AuthorityGrant };
+  AUTHORITY_CHANGED: { change: "granted" | "revoked"; grant: AuthorityGrant };
   PRESENCE_CHANGED: { snapshot: PresenceEntry[] };
   SETTINGS_PUSH_RESULT: { agentId: string; ok: boolean; errors?: ValidationError[] };
   AUDIT_EVENT: { event: AuditEvent };
-  LOG: { level: 'debug' | 'info' | 'warn' | 'error'; source: string; message: string; meta?: Record<string, unknown> };
+  LOG: { level: "debug" | "info" | "warn" | "error"; source: string; message: string; meta?: Record<string, unknown> };
   INITIAL_SNAPSHOT: {
     agents: AgentRecord[];
     permissions: PendingRequest[];

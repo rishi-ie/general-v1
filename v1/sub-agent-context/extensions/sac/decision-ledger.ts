@@ -1,20 +1,9 @@
 import { ulid } from "ulid";
-import {
-  type Decision,
-  type MetaState,
-  createDefaultMetaState,
-} from "./types";
-import {
-  readDecisionLedger,
-  writeDecisionLedger,
-} from "./storage/store";
-import { EventObserver } from "./event-observer";
+import type { EventObserver } from "./event-observer";
+import { addRecentDecision, getMetaState, schedulePersist as scheduleMetaPersist } from "./meta-state";
+import { readDecisionLedger, writeDecisionLedger } from "./storage/store";
+import { type Decision, type MetaState, createDefaultMetaState } from "./types";
 import type { ObservedEvent } from "./types";
-import {
-  getMetaState,
-  addRecentDecision,
-  schedulePersist as scheduleMetaPersist,
-} from "./meta-state";
 
 let decisions: Decision[] = [];
 let config: { storagePath?: string; maxRecentDecisions?: number } = {};
@@ -88,10 +77,8 @@ export function getDecisionById(decisionId: string): Decision | undefined {
   return decisions.find((d) => d.decision_id === decisionId);
 }
 
-export function getRecentDecisions(limit: number = 20): Decision[] {
-  return decisions
-    .sort((a, b) => b.timestamp - a.timestamp)
-    .slice(0, limit);
+export function getRecentDecisions(limit = 20): Decision[] {
+  return decisions.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
 }
 
 export function getDecisionsForEpoch(epochId: string): Decision[] {
@@ -133,7 +120,7 @@ export function setMetaStateGetter(getter: () => MetaState): void {
 
 export function initDecisionLedgerModule(
   observer: EventObserver,
-  cfg: { storagePath?: string; maxRecentDecisions?: number }
+  cfg: { storagePath?: string; maxRecentDecisions?: number },
 ): void {
   config = cfg;
   observer.onEvent(handleEvent);

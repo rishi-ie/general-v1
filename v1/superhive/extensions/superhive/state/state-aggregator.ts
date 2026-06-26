@@ -1,7 +1,7 @@
-import { EventEmitter } from 'events';
-import { AgentRegistry } from '../registry/agent-registry';
-import { AgentRecord, AgentState, Metrics } from '../types';
-import { Logger } from '../logger';
+import { EventEmitter } from "events";
+import type { Logger } from "../logger";
+import type { AgentRegistry } from "../registry/agent-registry";
+import { type AgentRecord, AgentState, type Metrics } from "../types";
 
 export interface AggregatedMetrics {
   totalAgents: number;
@@ -15,35 +15,38 @@ export interface AggregatedMetrics {
 export class StateAggregator extends EventEmitter {
   private agentMetrics = new Map<string, Metrics>();
 
-  constructor(private registry: AgentRegistry, private log?: Logger) {
+  constructor(
+    private registry: AgentRegistry,
+    private log?: Logger,
+  ) {
     super();
     this.wireEvents();
   }
 
   private wireEvents(): void {
-    this.registry.on('agent:connected', (a) => {
-      this.emit('agent:joined', a);
+    this.registry.on("agent:connected", (a) => {
+      this.emit("agent:joined", a);
     });
 
-    this.registry.on('agent:disconnected', (id, reason) => {
+    this.registry.on("agent:disconnected", (id, reason) => {
       this.agentMetrics.delete(id);
-      this.emit('agent:left', { agentId: id, reason });
+      this.emit("agent:left", { agentId: id, reason });
     });
 
-    this.registry.on('agent:metrics-changed', (agent, metrics) => {
+    this.registry.on("agent:metrics-changed", (agent, metrics) => {
       this.agentMetrics.set(agent.agentId, metrics);
-      this.emit('metrics:updated', this.rollup());
+      this.emit("metrics:updated", this.rollup());
     });
   }
 
   updateMetrics(agentId: string, metrics: Metrics): void {
     this.agentMetrics.set(agentId, metrics);
-    this.emit('metrics:updated', this.rollup());
+    this.emit("metrics:updated", this.rollup());
   }
 
   rollup(): AggregatedMetrics {
     const agents = this.registry.list();
-    const online = agents.filter((a) => a.status !== 'offline');
+    const online = agents.filter((a) => a.status !== "offline");
 
     let totalTokensUsed = 0;
     let totalToolCalls = 0;

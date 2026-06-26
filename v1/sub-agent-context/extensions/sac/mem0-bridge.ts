@@ -1,7 +1,7 @@
 import type { Mem0Memory } from "./types";
 
 let mem0Client: unknown = null;
-let enabled: boolean = false;
+let enabled = false;
 
 function log(msg: string, data?: Record<string, unknown>): void {
   console.log(`[sac] ${msg}`, data ?? {});
@@ -19,10 +19,7 @@ export async function initMem0Bridge(): Promise<void> {
   }
 }
 
-export async function addMemory(
-  sessionId: string,
-  messages: Array<{ role: string; content: string }>
-): Promise<void> {
+export async function addMemory(sessionId: string, messages: Array<{ role: string; content: string }>): Promise<void> {
   if (!enabled || !mem0Client) return;
 
   try {
@@ -38,16 +35,14 @@ export async function addMemory(
   }
 }
 
-export async function searchMemories(
-  sessionId: string,
-  query: string,
-  topK: number = 10
-): Promise<Mem0Memory[]> {
+export async function searchMemories(sessionId: string, query: string, topK = 10): Promise<Mem0Memory[]> {
   if (!enabled || !mem0Client) return [];
 
   try {
     const client = mem0Client as {
-      search?: (opts: { query: string; user_id: string; top_k?: number }) => Promise<{ results?: Array<{ id?: string; text?: string; metadata?: Record<string, unknown>; created_at?: string }> }>;
+      search?: (opts: { query: string; user_id: string; top_k?: number }) => Promise<{
+        results?: Array<{ id?: string; text?: string; metadata?: Record<string, unknown>; created_at?: string }>;
+      }>;
     };
     if (client.search) {
       const result = await client.search({ query, user_id: sessionId, top_k: topK });
@@ -66,7 +61,7 @@ export async function searchMemories(
   return [];
 }
 
-export async function getRecentMemories(sessionId: string, limit: number = 20): Promise<Mem0Memory[]> {
+export async function getRecentMemories(sessionId: string, limit = 20): Promise<Mem0Memory[]> {
   return searchMemories(sessionId, "", limit);
 }
 

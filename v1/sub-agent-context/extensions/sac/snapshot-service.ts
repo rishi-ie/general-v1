@@ -1,6 +1,6 @@
-import type { CognitiveSnapshot, MetaState, Goal, Decision, OpenLoop, Relationship } from "./types";
-import { getMetaState } from "./meta-state";
 import { getRecentDecisions } from "./decision-ledger";
+import { getMetaState } from "./meta-state";
+import type { CognitiveSnapshot, Decision, Goal, MetaState, OpenLoop, Relationship } from "./types";
 
 let config: { snapshotFormat?: "concise" | "detailed"; maxRecentDecisions?: number } = {};
 
@@ -16,9 +16,7 @@ export function generateSnapshot(): CognitiveSnapshot {
   const activeGoals = metaState.goals.filter((g) => g.status === "in_progress");
   const openLoops = metaState.open_loops.filter((l) => l.status === "open");
   const recentDecisions = getRecentDecisions(maxDecisions);
-  const importantRelationships = metaState.relationships
-    .filter((r) => r.importance === "high")
-    .slice(0, 10);
+  const importantRelationships = metaState.relationships.filter((r) => r.importance === "high").slice(0, 10);
 
   const snapshot: CognitiveSnapshot = {
     generated_at: Date.now(),
@@ -133,7 +131,9 @@ export function formatSnapshotDetailed(snapshot: CognitiveSnapshot): string {
 
   lines.push("## Open Loops");
   for (const loop of snapshot.open_loops) {
-    lines.push(`- [${loop.type}] ${loop.description} (opened: ${new Date(loop.created_at).toISOString().split("T")[0]})`);
+    lines.push(
+      `- [${loop.type}] ${loop.description} (opened: ${new Date(loop.created_at).toISOString().split("T")[0]})`,
+    );
   }
   lines.push("");
 
@@ -150,7 +150,9 @@ export function formatSnapshotDetailed(snapshot: CognitiveSnapshot): string {
 
   lines.push("## Relationships");
   for (const rel of snapshot.important_relationships) {
-    lines.push(`- ${rel.entity_name} (${rel.relationship_type}, ${rel.importance} importance, ${rel.interaction_count} interactions)`);
+    lines.push(
+      `- ${rel.entity_name} (${rel.relationship_type}, ${rel.importance} importance, ${rel.interaction_count} interactions)`,
+    );
   }
   lines.push("");
 
@@ -179,6 +181,9 @@ export function formatSnapshot(snapshot: CognitiveSnapshot): string {
   return formatSnapshotConcise(snapshot);
 }
 
-export function initSnapshotService(cfg: { snapshotFormat?: "concise" | "detailed"; maxRecentDecisions?: number }): void {
+export function initSnapshotService(cfg: {
+  snapshotFormat?: "concise" | "detailed";
+  maxRecentDecisions?: number;
+}): void {
   config = cfg;
 }

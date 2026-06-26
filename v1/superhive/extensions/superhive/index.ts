@@ -1,33 +1,33 @@
-import { EventEmitter } from 'events';
-import { IncomingMessage } from 'http';
-import { generateId } from './server/envelope';
-import { WebSocketServer } from './server/websocket-server';
-import { Connection } from './server/connection';
-import { AgentRegistry } from './registry/agent-registry';
-import { validateManifest } from './registry/manifest-validator';
-import { loadConfig } from './config';
-import { Store } from './persistence/store';
-import { InternalClient } from './ipc/internal-client';
-import { SettingsEngine } from './settings/settings-engine';
-import { PermissionRouter } from './permissions/permission-router';
-import { Broker } from './messaging/broker';
-import { PresenceTracker } from './presence/presence-tracker';
-import { AuthorityManager } from './authority/authority-manager';
-import { StateAggregator } from './state/state-aggregator';
-import { ApiKeyStore } from './auth/api-key-store';
-import { Logger } from './logger';
+import { EventEmitter } from "events";
+import type { IncomingMessage } from "http";
+import { ApiKeyStore } from "./auth/api-key-store";
+import { AuthorityManager } from "./authority/authority-manager";
+import { loadConfig } from "./config";
+import { InternalClient } from "./ipc/internal-client";
+import { Logger } from "./logger";
+import { Broker } from "./messaging/broker";
+import { PermissionRouter } from "./permissions/permission-router";
+import { Store } from "./persistence/store";
+import { PresenceTracker } from "./presence/presence-tracker";
+import { AgentRegistry } from "./registry/agent-registry";
+import { validateManifest } from "./registry/manifest-validator";
+import type { Connection } from "./server/connection";
+import { generateId } from "./server/envelope";
+import { WebSocketServer } from "./server/websocket-server";
+import { SettingsEngine } from "./settings/settings-engine";
+import { StateAggregator } from "./state/state-aggregator";
 import {
-  Envelope,
-  AgentManifest,
-  AgentRecord,
-  AgentState,
-  Metrics,
-  InterAgentMessage,
-  PermissionDecision,
+  type AgentManifest,
+  type AgentRecord,
+  type AgentState,
+  type AuditEvent,
+  type Envelope,
+  type InterAgentMessage,
+  type Metrics,
   PendingRequest,
-  SettingsPatch,
-  AuditEvent,
-} from './types';
+  PermissionDecision,
+  type SettingsPatch,
+} from "./types";
 
 interface AgentContext {
   conn: Connection;
@@ -48,9 +48,11 @@ interface HostDeps {
   store: Store;
 }
 
-export default async function superhive(pi: { on(event: string, cb: () => void | Promise<void>): void }): Promise<void> {
-  const log = new Logger('superhive', 'debug');
-  log.setLevel('debug');
+export default async function superhive(pi: {
+  on(event: string, cb: () => void | Promise<void>): void;
+}): Promise<void> {
+  const log = new Logger("superhive", "debug");
+  log.setLevel("debug");
 
   const cfg = await loadConfig(undefined, log);
   const store = new Store(cfg.dataDir, log);
@@ -66,7 +68,19 @@ export default async function superhive(pi: { on(event: string, cb: () => void |
   const auth = new ApiKeyStore(store, log);
   const internal = new InternalClient(cfg.internalUrl, log);
 
-  const deps: HostDeps = { log, registry, settings, permissions, broker, presence, authority, state, auth, internal, store };
+  const deps: HostDeps = {
+    log,
+    registry,
+    settings,
+    permissions,
+    broker,
+    presence,
+    authority,
+    state,
+    auth,
+    internal,
+    store,
+  };
 
   await registry.restore();
   await authority.restore();
@@ -79,56 +93,66 @@ export default async function superhive(pi: { on(event: string, cb: () => void |
     heartbeatTimeoutMs: cfg.heartbeatTimeoutMs,
     maxPayloadBytes: cfg.maxPayloadBytes,
     onConnection: (conn, req) => wireAgent(conn, req, deps, cfg),
-    onError: (err) => log.error('server error', { error: String(err) }),
+    onError: (err) => log.error("server error", { error: String(err) }),
   });
 
-  registry.on('agent:connected', (a) => {
-    internal.send({ type: 'AGENT_CONNECTED', from: 'host', payload: { agent: a } });
+  registry.on("agent:connected", (a) => {
+    internal.send({ type: "AGENT_CONNECTED", from: "host", payload: { agent: a } });
   });
 
-  registry.on('agent:disconnected', (id, reason) => {
-    internal.send({ type: 'AGENT_DISCONNECTED', from: 'host', payload: { agentId: id, reason } });
+  registry.on("agent:disconnected", (id, reason) => {
+    internal.send({ type: "AGENT_DISCONNECTED", from: "host", payload: { agentId: id, reason } });
     authority.revokeByAgent(id);
   });
 
-  registry.on('agent:state-changed', (a, st) => {
-    internal.send({ type: 'AGENT_STATE_CHANGED', from: 'host', payload: { agentId: a.agentId, state: st } });
+  registry.on("agent:state-changed", (a, st) => {
+    internal.send({ type: "AGENT_STATE_CHANGED", from: "host", payload: { agentId: a.agentId, state: st } });
   });
 
-  registry.on('agent:metrics-changed', (a, metrics) => {
+  registry.on("agent:metrics-changed", (a, metrics) => {
     state.updateMetrics(a.agentId, metrics);
   });
 
-  permissions.on('request', (req) => {
-    internal.send({ type: 'PERMISSION_REQUESTED', from: 'host', payload: { agentId: req.agentId, request: req } });
+  permissions.on("request", (req) => {
+    internal.send({ type: "PERMISSION_REQUESTED", from: "host", payload: { agentId: req.agentId, request: req } });
   });
 
-  permissions.on('resolved', (dec) => {
-    internal.send({ type: 'PERMISSION_RESOLVED', from: 'host', payload: dec });
+  permissions.on("resolved", (dec) => {
+    internal.send({ type: "PERMISSION_RESOLVED", from: "host", payload: dec });
   });
 
-  broker.on('deliver', (agentId, msg) => {
+  broker.on("deliver", (agentId, msg) => {
     const conn = registry.getConnection(agentId);
     if (conn) {
-      conn.send({ type: 'INTER_AGENT_DELIVERY', from: 'host', payload: { from: msg.from, messageId: msg.messageId, kind: msg.kind, payload: msg.payload, receivedAt: msg.receivedAt } });
+      conn.send({
+        type: "INTER_AGENT_DELIVERY",
+        from: "host",
+        payload: {
+          from: msg.from,
+          messageId: msg.messageId,
+          kind: msg.kind,
+          payload: msg.payload,
+          receivedAt: msg.receivedAt,
+        },
+      });
     }
   });
 
-  presence.on('changed', (snapshot) => {
-    internal.send({ type: 'PRESENCE_CHANGED', from: 'host', payload: { snapshot } });
+  presence.on("changed", (snapshot) => {
+    internal.send({ type: "PRESENCE_CHANGED", from: "host", payload: { snapshot } });
   });
 
-  authority.on('granted', (grant) => {
-    internal.send({ type: 'AUTHORITY_CHANGED', from: 'host', payload: { change: 'granted', grant } });
+  authority.on("granted", (grant) => {
+    internal.send({ type: "AUTHORITY_CHANGED", from: "host", payload: { change: "granted", grant } });
   });
 
-  authority.on('revoked', ({ grantId, reason }) => {
-    internal.send({ type: 'AUTHORITY_REVOKED', from: 'host', payload: { grantId, reason } });
+  authority.on("revoked", ({ grantId, reason }) => {
+    internal.send({ type: "AUTHORITY_REVOKED", from: "host", payload: { grantId, reason } });
   });
 
-  internal.on('message', (env) => handleRendererCommand(env, deps));
+  internal.on("message", (env) => handleRendererCommand(env, deps));
 
-  pi.on('session_start', async () => {
+  pi.on("session_start", async () => {
     try {
       await server.start();
       await internal.connect();
@@ -136,8 +160,8 @@ export default async function superhive(pi: { on(event: string, cb: () => void |
       log.info(`internal client connected to ${cfg.internalUrl}`);
 
       internal.send({
-        type: 'INITIAL_SNAPSHOT',
-        from: 'host',
+        type: "INITIAL_SNAPSHOT",
+        from: "host",
         payload: {
           agents: registry.list(),
           permissions: permissions.listPending(),
@@ -146,20 +170,29 @@ export default async function superhive(pi: { on(event: string, cb: () => void |
         },
       });
     } catch (err) {
-      log.error('failed to start superhive', { error: String(err) });
+      log.error("failed to start superhive", { error: String(err) });
       throw err;
     }
   });
 
-  pi.on('session_end', async () => {
-    log.info('superhive shutting down');
-    internal.send({ type: 'LOG', from: 'host', payload: { level: 'info', source: 'superhive', message: 'host shutting down' } });
+  pi.on("session_end", async () => {
+    log.info("superhive shutting down");
+    internal.send({
+      type: "LOG",
+      from: "host",
+      payload: { level: "info", source: "superhive", message: "host shutting down" },
+    });
     internal.close();
     await server.stop();
   });
 }
 
-function wireAgent(conn: Connection, req: IncomingMessage, deps: HostDeps, cfg: ReturnType<typeof loadConfig> extends Promise<infer T> ? T : never): void {
+function wireAgent(
+  conn: Connection,
+  req: IncomingMessage,
+  deps: HostDeps,
+  cfg: ReturnType<typeof loadConfig> extends Promise<infer T> ? T : never,
+): void {
   const { log, registry, permissions, broker, authority, internal, state } = deps;
   let agentCtx: AgentContext | null = null;
 
@@ -167,12 +200,12 @@ function wireAgent(conn: Connection, req: IncomingMessage, deps: HostDeps, cfg: 
     conn.close(code, reason);
   };
 
-  conn.on('message', async (env: Envelope) => {
+  conn.on("message", async (env: Envelope) => {
     try {
       switch (env.type) {
-        case 'AGENT_HELLO': {
+        case "AGENT_HELLO": {
           if (agentCtx) {
-            sendError(4400, 'already registered');
+            sendError(4400, "already registered");
             return;
           }
 
@@ -180,56 +213,60 @@ function wireAgent(conn: Connection, req: IncomingMessage, deps: HostDeps, cfg: 
           const valid = validateManifest(payload.manifest);
 
           if (!valid.ok) {
-            log.warn('agent: invalid manifest', { errors: valid.errors });
-            sendError(4400, `invalid manifest: ${valid.errors.join(', ')}`);
+            log.warn("agent: invalid manifest", { errors: valid.errors });
+            sendError(4400, `invalid manifest: ${valid.errors.join(", ")}`);
             return;
           }
 
           if (cfg.auth.required) {
-            const authHeader = req.headers.authorization ?? '';
-            const apiKey = authHeader.replace(/^Bearer /i, '') || '';
+            const authHeader = req.headers.authorization ?? "";
+            const apiKey = authHeader.replace(/^Bearer /i, "") || "";
             const keyEntry = auth.validate(apiKey);
             if (!keyEntry) {
-              sendError(4401, 'unauthorized');
+              sendError(4401, "unauthorized");
               return;
             }
           }
 
-          const agentId = (payload.manifest.modules?.['superhive']?.['agentId'] as string) ??
+          const agentId =
+            (payload.manifest.modules?.["superhive"]?.["agentId"] as string) ??
             `${valid.manifest.name}-${generateId().slice(0, 8)}`;
           const sessionId = generateId();
 
           const record = registry.connect(conn, {
             agentId,
             manifest: valid.manifest,
-            remoteAddr: req.socket.remoteAddress ?? 'unknown',
+            remoteAddr: req.socket.remoteAddress ?? "unknown",
             sessionId,
             connectionId: conn.id,
           });
 
           agentCtx = { conn, record };
 
-          log.info('agent: connected', { agentId, manifest: valid.manifest.name, version: valid.manifest.version });
+          log.info("agent: connected", { agentId, manifest: valid.manifest.name, version: valid.manifest.version });
 
           conn.send({
-            type: 'HOST_WELCOME',
+            type: "HOST_WELCOME",
             to: agentId,
             payload: {
               agentId,
               sessionId,
-              serverVersion: '0.1.0',
+              serverVersion: "0.1.0",
               heartbeatIntervalMs: cfg.heartbeatIntervalMs,
             },
           });
 
-          internal.send({ type: 'AGENT_CONNECTED', from: 'host', payload: { agent: record } });
+          internal.send({ type: "AGENT_CONNECTED", from: "host", payload: { agent: record } });
 
-          await logAudit(deps, 'agent_connected', { agentId, manifest: valid.manifest });
+          await logAudit(deps, "agent_connected", { agentId, manifest: valid.manifest });
           break;
         }
 
-        case 'AGENT_STATE': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
+        case "AGENT_STATE": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
           const { state: agentState, metrics } = env.payload as { state: AgentState; metrics?: Metrics };
           registry.updateState(agentCtx.record.agentId, agentState);
           if (metrics) {
@@ -239,14 +276,17 @@ function wireAgent(conn: Connection, req: IncomingMessage, deps: HostDeps, cfg: 
           break;
         }
 
-        case 'PERMISSION_REQUEST': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
+        case "PERMISSION_REQUEST": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
           const reqPayload = env.payload as {
             requestId: string;
             tool: string;
             args: unknown;
             reason: string;
-            severity: 'low' | 'medium' | 'high' | 'critical';
+            severity: "low" | "medium" | "high" | "critical";
           };
 
           const decision = await permissions.enqueue({
@@ -260,7 +300,7 @@ function wireAgent(conn: Connection, req: IncomingMessage, deps: HostDeps, cfg: 
           });
 
           conn.send({
-            type: 'PERMISSION_DECISION',
+            type: "PERMISSION_DECISION",
             to: agentCtx.record.agentId,
             payload: {
               requestId: reqPayload.requestId,
@@ -272,17 +312,32 @@ function wireAgent(conn: Connection, req: IncomingMessage, deps: HostDeps, cfg: 
           break;
         }
 
-        case 'INTER_AGENT_MESSAGE': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
+        case "INTER_AGENT_MESSAGE": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
           const msgPayload = env.payload as InterAgentMessage;
           const result = await broker.route(agentCtx.record.agentId, msgPayload);
-          log.debug('broker: routed message', { from: agentCtx.record.agentId, deliveredTo: result.deliveredTo, dropped: result.dropped });
+          log.debug("broker: routed message", {
+            from: agentCtx.record.agentId,
+            deliveredTo: result.deliveredTo,
+            dropped: result.dropped,
+          });
           break;
         }
 
-        case 'AUTHORITY_GRANT': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
-          const grantPayload = env.payload as { grantId: string; toAgentId: string; scope: import('./types').AuthorityScope; expiresAt?: number };
+        case "AUTHORITY_GRANT": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
+          const grantPayload = env.payload as {
+            grantId: string;
+            toAgentId: string;
+            scope: import("./types").AuthorityScope;
+            expiresAt?: number;
+          };
           authority.grant({
             grantId: grantPayload.grantId,
             fromAgentId: agentCtx.record.agentId,
@@ -293,74 +348,96 @@ function wireAgent(conn: Connection, req: IncomingMessage, deps: HostDeps, cfg: 
           break;
         }
 
-        case 'AUTHORITY_REVOKE': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
+        case "AUTHORITY_REVOKE": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
           const revokePayload = env.payload as { grantId: string };
           authority.revoke(revokePayload.grantId, `requested by ${agentCtx.record.agentId}`);
           break;
         }
 
-        case 'PRESENCE_UPDATE': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
-          const presPayload = env.payload as { status: import('./types').AgentStatus; activity?: string };
+        case "PRESENCE_UPDATE": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
+          const presPayload = env.payload as { status: import("./types").AgentStatus; activity?: string };
           registry.updateStatus(agentCtx.record.agentId, presPayload.status, presPayload.activity);
           break;
         }
 
-        case 'SETTINGS_APPLIED': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
+        case "SETTINGS_APPLIED": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
           const appliedPayload = env.payload as { settingsHash: string };
           settings.onSettingsApplied(agentCtx.record.agentId, appliedPayload.settingsHash);
           break;
         }
 
-        case 'SETTINGS_REJECTED': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
-          const rejectPayload = env.payload as { settingsHash: string; reason: string; errors: import('./types').ValidationError[] };
+        case "SETTINGS_REJECTED": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
+          const rejectPayload = env.payload as {
+            settingsHash: string;
+            reason: string;
+            errors: import("./types").ValidationError[];
+          };
           settings.onSettingsRejected(agentCtx.record.agentId, rejectPayload.errors);
           break;
         }
 
-        case 'HEARTBEAT': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
+        case "HEARTBEAT": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
           const hbPayload = env.payload as { agentId: string; ts: number; pingToken: string };
           conn.send({
-            type: 'HEARTBEAT_ACK',
+            type: "HEARTBEAT_ACK",
             to: agentCtx.record.agentId,
             payload: { ts: Date.now(), pongToken: hbPayload.pingToken },
           });
           break;
         }
 
-        case 'DISCONNECT': {
-          if (!agentCtx) { sendError(4400, 'not registered'); return; }
+        case "DISCONNECT": {
+          if (!agentCtx) {
+            sendError(4400, "not registered");
+            return;
+          }
           const disPayload = env.payload as { reason?: string };
-          registry.disconnect(conn.id, disPayload.reason ?? 'agent disconnected');
-          conn.close(1000, 'goodbye');
+          registry.disconnect(conn.id, disPayload.reason ?? "agent disconnected");
+          conn.close(1000, "goodbye");
           agentCtx = null;
           break;
         }
 
         default:
-          log.debug('agent: unknown message type', { type: env.type });
+          log.debug("agent: unknown message type", { type: env.type });
           break;
       }
     } catch (err) {
-      log.error('agent: message handler error', { type: env.type, error: String(err) });
+      log.error("agent: message handler error", { type: env.type, error: String(err) });
       sendError(4500, `internal error: ${String(err)}`);
     }
   });
 
-  conn.on('close', (code, reason) => {
+  conn.on("close", (code, reason) => {
     if (agentCtx) {
       registry.disconnect(conn.id, `WebSocket close ${code}: ${reason}`);
       agentCtx = null;
     }
-    log.info('agent: connection closed', { code, reason });
+    log.info("agent: connection closed", { code, reason });
   });
 
-  conn.on('error', (err) => {
-    log.error('agent: connection error', { error: String(err) });
+  conn.on("error", (err) => {
+    log.error("agent: connection error", { error: String(err) });
   });
 }
 
@@ -375,62 +452,91 @@ async function handleRendererCommand(env: Envelope, deps: HostDeps): Promise<voi
   const { log, registry, settings, permissions, broker, authority, internal } = deps;
 
   switch (env.type) {
-    case 'LIST_AGENTS': {
-      internal.send({ type: 'INITIAL_SNAPSHOT', from: 'host', payload: {
-        agents: registry.list(),
-        permissions: permissions.listPending(),
-        authority: authority.listActive(),
-        presence: deps.presence.snapshot(),
-      }});
+    case "LIST_AGENTS": {
+      internal.send({
+        type: "INITIAL_SNAPSHOT",
+        from: "host",
+        payload: {
+          agents: registry.list(),
+          permissions: permissions.listPending(),
+          authority: authority.listActive(),
+          presence: deps.presence.snapshot(),
+        },
+      });
       break;
     }
 
-    case 'APPROVE_PERMISSION': {
+    case "APPROVE_PERMISSION": {
       const { requestId, remember } = env.payload as { requestId: string; remember?: boolean };
-      permissions.decide(requestId, { decision: 'allow', remember });
+      permissions.decide(requestId, { decision: "allow", remember });
       const pending = permissions.get(requestId);
       if (pending) {
-        emitToAgent(pending.agentId, {
-          type: 'PERMISSION_DECISION',
-          from: 'host',
-          payload: { requestId, decision: 'allow', remember },
-        }, deps);
+        emitToAgent(
+          pending.agentId,
+          {
+            type: "PERMISSION_DECISION",
+            from: "host",
+            payload: { requestId, decision: "allow", remember },
+          },
+          deps,
+        );
       }
       break;
     }
 
-    case 'DENY_PERMISSION': {
+    case "DENY_PERMISSION": {
       const { requestId, reason } = env.payload as { requestId: string; reason?: string };
-      permissions.decide(requestId, { decision: 'deny', reason });
+      permissions.decide(requestId, { decision: "deny", reason });
       const pending = permissions.get(requestId);
       if (pending) {
-        emitToAgent(pending.agentId, {
-          type: 'PERMISSION_DECISION',
-          from: 'host',
-          payload: { requestId, decision: 'deny', reason },
-        }, deps);
+        emitToAgent(
+          pending.agentId,
+          {
+            type: "PERMISSION_DECISION",
+            from: "host",
+            payload: { requestId, decision: "deny", reason },
+          },
+          deps,
+        );
       }
       break;
     }
 
-    case 'PUSH_SETTINGS': {
-      const { agentId, patch, expectedHash } = env.payload as { agentId: string; patch: SettingsPatch[]; expectedHash?: string };
+    case "PUSH_SETTINGS": {
+      const { agentId, patch, expectedHash } = env.payload as {
+        agentId: string;
+        patch: SettingsPatch[];
+        expectedHash?: string;
+      };
       const conn = registry.getConnection(agentId);
       if (!conn) {
-        internal.send({ type: 'SETTINGS_PUSH_RESULT', from: 'host', payload: { agentId, ok: false, errors: [{ path: '', message: 'agent not connected' }] } });
+        internal.send({
+          type: "SETTINGS_PUSH_RESULT",
+          from: "host",
+          payload: { agentId, ok: false, errors: [{ path: "", message: "agent not connected" }] },
+        });
         return;
       }
-      conn.send({ type: 'SETTINGS_UPDATE', from: 'host', payload: { patch, expectedHash: expectedHash ?? '', schema: registry.get(agentId)?.manifest.settingsSchema ?? {}, urgent: false } });
+      conn.send({
+        type: "SETTINGS_UPDATE",
+        from: "host",
+        payload: {
+          patch,
+          expectedHash: expectedHash ?? "",
+          schema: registry.get(agentId)?.manifest.settingsSchema ?? {},
+          urgent: false,
+        },
+      });
       break;
     }
 
-    case 'SEND_MESSAGE': {
+    case "SEND_MESSAGE": {
       const { from, to, group, broadcast, kind, payload } = env.payload as {
         from: string;
         to?: string;
         group?: string;
         broadcast?: boolean;
-        kind: InterAgentMessage['kind'];
+        kind: InterAgentMessage["kind"];
         payload: unknown;
       };
       const msg: InterAgentMessage = {
@@ -447,33 +553,41 @@ async function handleRendererCommand(env: Envelope, deps: HostDeps): Promise<voi
       break;
     }
 
-    case 'REVOKE_AUTHORITY': {
+    case "REVOKE_AUTHORITY": {
       const { grantId } = env.payload as { grantId: string };
-      authority.revoke(grantId, 'renderer revoke');
+      authority.revoke(grantId, "renderer revoke");
       break;
     }
 
-    case 'KICK_AGENT': {
+    case "KICK_AGENT": {
       const { agentId, reason } = env.payload as { agentId: string; reason?: string };
       const conn = registry.getConnection(agentId);
       if (conn) {
-        conn.close(4403, reason ?? 'kicked by host');
+        conn.close(4403, reason ?? "kicked by host");
         registry.disconnect(conn.id, `kicked: ${reason}`);
       }
       break;
     }
 
-    case 'SEND_COMMAND': {
-      const { agentId, command, args } = env.payload as { agentId: string; command: string; args?: Record<string, unknown> };
+    case "SEND_COMMAND": {
+      const { agentId, command, args } = env.payload as {
+        agentId: string;
+        command: string;
+        args?: Record<string, unknown>;
+      };
       const conn = registry.getConnection(agentId);
       if (conn) {
-        conn.send({ type: 'COMMAND', from: 'host', payload: { command: command as import('./types').HostCommand, args } });
+        conn.send({
+          type: "COMMAND",
+          from: "host",
+          payload: { command: command as import("./types").HostCommand, args },
+        });
       }
       break;
     }
 
     default:
-      log.debug('renderer: unknown command', { type: env.type });
+      log.debug("renderer: unknown command", { type: env.type });
       break;
   }
 }
@@ -481,7 +595,7 @@ async function handleRendererCommand(env: Envelope, deps: HostDeps): Promise<voi
 async function logAudit(deps: HostDeps, event: string, data: Record<string, unknown>): Promise<void> {
   const { store } = deps;
   try {
-    const { todayDate } = await import('./persistence/paths');
+    const { todayDate } = await import("./persistence/paths");
     const entry: AuditEvent = { event, data, ts: Date.now() };
     await store.append(`audit/${todayDate()}.jsonl`, entry);
   } catch {

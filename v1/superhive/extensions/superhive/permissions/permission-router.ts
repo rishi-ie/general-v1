@@ -1,45 +1,45 @@
-import { EventEmitter } from 'events';
-import { PendingRequest, PermissionDecision } from '../types';
-import { Logger } from '../logger';
+import { EventEmitter } from "events";
+import type { Logger } from "../logger";
+import type { PendingRequest, PermissionDecision } from "../types";
 
 export class PermissionRouter extends EventEmitter {
   private pending = new Map<string, PendingRequest>();
-  private defaultPolicies = new Map<string, 'allow' | 'deny' | 'ask'>();
+  private defaultPolicies = new Map<string, "allow" | "deny" | "ask">();
 
   constructor(private log?: Logger) {
     super();
   }
 
-  enqueue(req: Omit<PendingRequest, 'resolve'>): Promise<PermissionDecision> {
+  enqueue(req: Omit<PendingRequest, "resolve">): Promise<PermissionDecision> {
     return new Promise((resolve) => {
       const entry: PendingRequest = { ...req, resolve };
       this.pending.set(req.requestId, entry);
-      this.log?.info('permission: request queued', {
+      this.log?.info("permission: request queued", {
         requestId: req.requestId,
         agentId: req.agentId,
         tool: req.tool,
         severity: req.severity,
       });
-      this.emit('request', entry);
+      this.emit("request", entry);
     });
   }
 
   decide(requestId: string, decision: PermissionDecision): void {
     const p = this.pending.get(requestId);
     if (!p) {
-      this.log?.warn('permission: request not found', { requestId });
+      this.log?.warn("permission: request not found", { requestId });
       return;
     }
 
     this.pending.delete(requestId);
     p.resolve?.(decision);
 
-    this.log?.info('permission: decision made', {
+    this.log?.info("permission: decision made", {
       requestId,
       decision: decision.decision,
       remember: decision.remember,
     });
-    this.emit('resolved', { requestId, ...decision });
+    this.emit("resolved", { requestId, ...decision });
   }
 
   get(requestId: string): PendingRequest | undefined {
@@ -50,12 +50,12 @@ export class PermissionRouter extends EventEmitter {
     return [...this.pending.values()].sort((a, b) => a.requestedAt - b.requestedAt);
   }
 
-  setDefaultPolicy(tool: string, policy: 'allow' | 'deny' | 'ask'): void {
+  setDefaultPolicy(tool: string, policy: "allow" | "deny" | "ask"): void {
     this.defaultPolicies.set(tool, policy);
   }
 
-  getDefaultPolicy(tool: string): 'allow' | 'deny' | 'ask' {
-    return this.defaultPolicies.get(tool) ?? 'ask';
+  getDefaultPolicy(tool: string): "allow" | "deny" | "ask" {
+    return this.defaultPolicies.get(tool) ?? "ask";
   }
 
   clearStale(maxAgeMs: number): number {
@@ -63,7 +63,7 @@ export class PermissionRouter extends EventEmitter {
     let cleared = 0;
     for (const [id, req] of this.pending) {
       if (req.requestedAt < cutoff) {
-        req.resolve?.({ decision: 'deny', reason: 'timeout' });
+        req.resolve?.({ decision: "deny", reason: "timeout" });
         this.pending.delete(id);
         cleared++;
       }

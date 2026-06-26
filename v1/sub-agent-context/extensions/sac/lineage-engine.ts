@@ -1,16 +1,11 @@
 import { ulid } from "ulid";
-import type { Epoch } from "./types";
-import {
-  ensureStorageDir,
-  writeEpoch,
-  readEpoch,
-  listEpochs,
-} from "./storage/store";
-import { EventObserver } from "./event-observer";
-import type { ObservedEvent } from "./types";
+import type { EventObserver } from "./event-observer";
 import { getMetaState } from "./meta-state";
+import { ensureStorageDir, listEpochs, readEpoch, writeEpoch } from "./storage/store";
+import type { Epoch } from "./types";
+import type { ObservedEvent } from "./types";
 
-let epochs: Map<string, Epoch> = new Map();
+const epochs: Map<string, Epoch> = new Map();
 let latestEpochId: string | null = null;
 let config: { storagePath?: string; autoLineage?: boolean } = {};
 let pendingEpoch: Partial<Epoch> | null = null;
@@ -67,7 +62,7 @@ export async function createEpoch(
     goals?: string[];
     relationships?: string[];
     project?: string;
-  }
+  },
 ): Promise<Epoch> {
   const epochId = ulid();
   const epoch: Epoch = {
@@ -107,9 +102,7 @@ export function capturePreCompactionState(tokensBefore: number): string {
 
   const parentEpochId = latestEpochId;
   const metaState = getMetaState();
-  const activeGoals = metaState.goals
-    .filter((g) => g.status === "in_progress")
-    .map((g) => g.goal_id);
+  const activeGoals = metaState.goals.filter((g) => g.status === "in_progress").map((g) => g.goal_id);
   const recentDecisions = metaState.recent_decisions.slice(0, 10);
 
   pendingEpoch = {
@@ -156,7 +149,7 @@ export async function handleCompactionEvent(event: ObservedEvent): Promise<void>
 
 export function initLineageEngineModule(
   obs: EventObserver,
-  cfg: { storagePath?: string; autoLineage?: boolean }
+  cfg: { storagePath?: string; autoLineage?: boolean },
 ): void {
   config = cfg;
   observer = obs;

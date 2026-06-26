@@ -1,6 +1,6 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { assembleContextText, retrieve } from "./retrieval-pipeline";
 import type { RetrievalContext } from "./types";
-import { retrieve, assembleContextText } from "./retrieval-pipeline";
 
 let config: { metaMemoryAgent?: string } = {};
 let pi: ExtensionAPI | null = null;
@@ -12,7 +12,7 @@ function log(msg: string, data?: Record<string, unknown>): void {
 export async function invokeMetaMemoryAgent(
   ctx: ExtensionContext,
   question: string,
-  context: RetrievalContext
+  context: RetrievalContext,
 ): Promise<string> {
   if (!pi) {
     log("pi not initialized, returning assembled context");
@@ -38,15 +38,17 @@ export async function invokeMetaMemoryAgent(
       if (pi) {
         pi.sendUserMessage(
           `[Memory Question] ${question}\n\n[Available Context]\n${contextText}\n\n[Task] Answer the question above using the available context. Be specific and cite sources when available. If the information is not in the context, say so honestly.`,
-          { source: "extension" }
-        ).then(() => {
-          clearTimeout(timeout);
-          resolve(contextText);
-        }).catch((err) => {
-          clearTimeout(timeout);
-          log("meta memory agent error", { error: String(err) });
-          resolve(contextText);
-        });
+          { source: "extension" },
+        )
+          .then(() => {
+            clearTimeout(timeout);
+            resolve(contextText);
+          })
+          .catch((err) => {
+            clearTimeout(timeout);
+            log("meta memory agent error", { error: String(err) });
+            resolve(contextText);
+          });
       } else {
         clearTimeout(timeout);
         resolve(contextText);

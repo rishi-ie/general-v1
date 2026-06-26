@@ -1,45 +1,28 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { ulid } from "ulid";
+import { addDecision, initDecisionLedgerModule, loadDecisionLedger } from "./decision-ledger";
+import { classifyContent, createEventObserver } from "./event-observer";
 import {
-  type SACConfig,
-  type ObservedEvent,
-  createDefaultConfig,
-} from "./types";
-import { createEventObserver, classifyContent } from "./event-observer";
-import {
-  loadMetaState,
-  getMetaState,
-  setContextSummary,
-  initMetaStateModule,
-} from "./meta-state";
-import {
-  loadDecisionLedger,
-  initDecisionLedgerModule,
-  addDecision,
-} from "./decision-ledger";
-import {
-  loadLineage,
-  initLineageEngineModule,
   capturePreCompactionState,
   finalizeEpochWithSummary,
+  initLineageEngineModule,
   linkEpochToCompaction,
+  loadLineage,
 } from "./lineage-engine";
-import {
-  initSnapshotService,
-  generateSnapshot,
-  formatSnapshot,
-} from "./snapshot-service";
-import { initMem0Bridge, addMemory, searchMemories } from "./mem0-bridge";
+import { addMemory, initMem0Bridge, searchMemories } from "./mem0-bridge";
 import { initMemoryQuestionRouter, isMemoryQuestion } from "./memory-question-router";
-import { retrieve, assembleContextText } from "./retrieval-pipeline";
 import { initMetaMemoryAgentModule } from "./meta-memory-agent";
-import { getMetaStatePath, getDecisionLedgerPath, getLineagePath } from "./storage/paths";
+import { getMetaState, initMetaStateModule, loadMetaState, setContextSummary } from "./meta-state";
+import { assembleContextText, retrieve } from "./retrieval-pipeline";
+import { formatSnapshot, generateSnapshot, initSnapshotService } from "./snapshot-service";
+import { getDecisionLedgerPath, getLineagePath, getMetaStatePath } from "./storage/paths";
 import { ensureStorageDir } from "./storage/store";
+import { type ObservedEvent, type SACConfig, createDefaultConfig } from "./types";
 
 let config: SACConfig = createDefaultConfig();
-let observer = createEventObserver();
-let sessionId: string = "";
-let isProcessingMemory: boolean = false;
+const observer = createEventObserver();
+let sessionId = "";
+let isProcessingMemory = false;
 
 function log(msg: string, data?: Record<string, unknown>): void {
   console.log(`[sac] ${msg}`, data ?? {});
@@ -54,8 +37,7 @@ async function loadConfig(basePath?: string): Promise<SACConfig> {
     if (loaded) {
       return { ...createDefaultConfig(), ...loaded };
     }
-  } catch {
-  }
+  } catch {}
   return createDefaultConfig();
 }
 
@@ -65,7 +47,7 @@ async function initStorage(): Promise<void> {
 }
 
 async function handleSessionStart(ctx: ExtensionContext): Promise<void> {
-  sessionId = ctx.sessionManager.getSessionFile() || ulid();
+  sessionId = ctx.sessionManager?.getSessionFile?.() || ulid();
   observer.setSessionId(sessionId);
 
   await initStorage();
@@ -74,7 +56,10 @@ async function handleSessionStart(ctx: ExtensionContext): Promise<void> {
   await loadLineage(config.storagePath);
 
   initMetaStateModule(observer, { storagePath: config.storagePath });
-  initDecisionLedgerModule(observer, { storagePath: config.storagePath, maxRecentDecisions: config.maxRecentDecisions });
+  initDecisionLedgerModule(observer, {
+    storagePath: config.storagePath,
+    maxRecentDecisions: config.maxRecentDecisions,
+  });
   initLineageEngineModule(observer, { storagePath: config.storagePath, autoLineage: config.autoLineage });
 
   await initMem0Bridge();
@@ -89,7 +74,7 @@ async function handleSessionStart(ctx: ExtensionContext): Promise<void> {
 
 async function handleBeforeAgentStart(
   event: { prompt: string; systemPrompt: string },
-  ctx: ExtensionContext
+  ctx: ExtensionContext,
 ): Promise<{ systemPrompt?: string; message?: unknown } | undefined> {
   if (!config.autoSnapshot) return;
 
@@ -107,13 +92,19 @@ async function handleBeforeAgentStart(
 
 async function handleAgentEnd(
   event: { messages: Array<{ role: string; content?: string }> },
-  ctx: ExtensionContext
+  ctx: ExtensionContext,
 ): Promise<void> {
   const messages = event.messages ?? [];
   if (messages.length === 0) return;
 
-  const userMsgs = messages.filter((m) => m.role === "user").map((m) => m.content ?? "").join("\n");
-  const assistantMsgs = messages.filter((m) => m.role === "assistant").map((m) => m.content ?? "").join("\n");
+  const userMsgs = messages
+    .filter((m) => m.role === "user")
+    .map((m) => m.content ?? "")
+    .join("\n");
+  const assistantMsgs = messages
+    .filter((m) => m.role === "assistant")
+    .map((m) => m.content ?? "")
+    .join("\n");
 
   if (userMsgs) {
     setContextSummary(userMsgs.slice(0, 500));
@@ -136,20 +127,13 @@ async function handleAgentEnd(
   log("agent end handled", { message_count: messages.length });
 }
 
-async function handleToolResult(
-  event: { toolName: string; result: unknown },
-  ctx: ExtensionContext
-): Promise<void> {
-  const content = typeof event.result === "string"
-    ? event.result
-    : JSON.stringify(event.result).slice(0, 2000);
+async function handleToolResult(event: { toolName: string; result: unknown }, ctx: ExtensionContext): Promise<void> {
+  const content = typeof event.result === "string" ? event.result : JSON.stringify(event.result).slice(0, 2000);
 
   await observer.emitFromToolResult(event.toolName, content, ctx);
 
   if (config.mem0Enabled && sessionId) {
-    await addMemory(sessionId, [
-      { role: "tool", content: `[${event.toolName}] ${content}` },
-    ]);
+    await addMemory(sessionId, [{ role: "tool", content: `[${event.toolName}] ${content}` }]);
   }
 }
 
@@ -160,7 +144,7 @@ async function handleSessionBeforeCompact(
       messagesToSummarize?: Array<{ role: string; content?: string }>;
     };
   },
-  ctx: ExtensionContext
+  ctx: ExtensionContext,
 ): Promise<{ cancel?: boolean } | void> {
   if (!config.autoLineage) return;
 
@@ -172,7 +156,7 @@ async function handleSessionBeforeCompact(
 
 async function handleSessionCompact(
   event: { compactionEntry?: { id: string; summary?: string } },
-  ctx: ExtensionContext
+  ctx: ExtensionContext,
 ): Promise<void> {
   if (!config.autoLineage) return;
 
@@ -190,10 +174,7 @@ async function handleSessionShutdown(ctx: ExtensionContext): Promise<void> {
   log("session shutdown");
 }
 
-async function handleInput(
-  event: { text: string },
-  ctx: ExtensionContext
-): Promise<{ action: string } | undefined> {
+async function handleInput(event: { text: string }, ctx: ExtensionContext): Promise<{ action: string } | undefined> {
   if (isProcessingMemory) return;
   if (!config.memoryQuestionDetection.enabled) return;
   if (!isMemoryQuestion(event.text)) return;
@@ -222,9 +203,12 @@ async function handleInput(
 }
 
 export default async function (pi: ExtensionAPI): Promise<void> {
-  const basePath = pi && typeof pi === "object" && "extensions" in pi
-    ? (pi as ExtensionAPI & { extensions?: unknown }).extensions as unknown as { config?: { storagePath?: string } } | undefined
-    : undefined;
+  const basePath =
+    pi && typeof pi === "object" && "extensions" in pi
+      ? ((pi as ExtensionAPI & { extensions?: unknown }).extensions as unknown as
+          | { config?: { storagePath?: string } }
+          | undefined)
+      : undefined;
 
   config = await loadConfig(basePath?.config?.storagePath);
 

@@ -1,24 +1,24 @@
-import { resolve } from 'node:path';
-import { DEFAULT_CONFIDENCE } from './types.js';
+import { resolve } from "node:path";
+import { DEFAULT_CONFIDENCE } from "./types.js";
 
-export const BASE_DIR = '.mission-control';
+export const BASE_DIR = ".mission-control";
 export const TICKETS_DIR = `${BASE_DIR}/tickets`;
 export const INDEX_FILE = `${BASE_DIR}/index.json`;
 
-export const ID_PREFIX = 'MC';
-export const ID_DATE_FORMAT = 'yyyy-MM-dd';
+export const ID_PREFIX = "MC";
+export const ID_DATE_FORMAT = "yyyy-MM-dd";
 
 export const CONFIDENCE = DEFAULT_CONFIDENCE;
 
 export const COMMANDS = {
-  NEW: 'ticket new',
-  LIST: 'ticket list',
-  SHOW: 'ticket show',
-  UPDATE: 'ticket update',
-  CLOSE: 'ticket close',
-  DELETE: 'ticket delete',
-  LINK_PLAN: 'ticket link-plan',
-  IMPORT: 'ticket import',
+  NEW: "ticket new",
+  LIST: "ticket list",
+  SHOW: "ticket show",
+  UPDATE: "ticket update",
+  CLOSE: "ticket close",
+  DELETE: "ticket delete",
+  LINK_PLAN: "ticket link-plan",
+  IMPORT: "ticket import",
 } as const;
 
 export const AUTO_CAPTURE_INFERENCE_PROMPT = `You are a task detection system. Analyze the following conversation and detect any tasks or work items that should be tracked.

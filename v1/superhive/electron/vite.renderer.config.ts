@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  root: 'renderer',
+  root: "renderer",
   build: {
-    outDir: '../dist/renderer',
+    outDir: "../dist/renderer",
     emptyOutDir: true,
   },
   server: {

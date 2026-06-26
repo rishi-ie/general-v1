@@ -1,9 +1,9 @@
-import { EventEmitter } from 'events';
-import { AgentRecord, AgentManifest, AgentStatus, AgentState, Metrics } from '../types';
-import { Store } from '../persistence/store';
-import { Logger } from '../logger';
-import { agentsPath } from '../persistence/paths';
-import { Connection } from '../server/connection';
+import { EventEmitter } from "events";
+import type { Logger } from "../logger";
+import { agentsPath } from "../persistence/paths";
+import type { Store } from "../persistence/store";
+import type { Connection } from "../server/connection";
+import type { AgentManifest, AgentRecord, AgentState, AgentStatus, Metrics } from "../types";
 
 export interface ConnectOptions {
   agentId: string;
@@ -19,15 +19,18 @@ export class AgentRegistry extends EventEmitter {
   private byConnectionId = new Map<string, string>();
   private connectionMap = new Map<string, Connection>();
 
-  constructor(private store: Store, private log?: Logger) {
+  constructor(
+    private store: Store,
+    private log?: Logger,
+  ) {
     super();
   }
 
   async restore(): Promise<void> {
     try {
-      const recs = (await this.store.read<AgentRecord[]>(agentsPath(this.store['dir']))) ?? [];
+      const recs = (await this.store.read<AgentRecord[]>(agentsPath(this.store["dir"]))) ?? [];
       for (const r of recs) {
-        this.byId.set(r.agentId, { ...r, status: 'offline', connectionId: '' });
+        this.byId.set(r.agentId, { ...r, status: "offline", connectionId: "" });
       }
       this.log?.info(`registry: restored ${recs.length} agents`);
     } catch (err) {
@@ -37,7 +40,7 @@ export class AgentRegistry extends EventEmitter {
 
   async persist(): Promise<void> {
     try {
-      await this.store.write(agentsPath(this.store['dir']), [...this.byId.values()]);
+      await this.store.write(agentsPath(this.store["dir"]), [...this.byId.values()]);
     } catch (err) {
       this.log?.error(`registry: failed to persist agents`, { error: String(err) });
     }
@@ -52,8 +55,8 @@ export class AgentRegistry extends EventEmitter {
       remoteAddr: opts.remoteAddr,
       connectedAt: existing?.connectedAt ?? Date.now(),
       lastSeen: Date.now(),
-      status: 'online',
-      settingsHash: existing?.settingsHash ?? '',
+      status: "online",
+      settingsHash: existing?.settingsHash ?? "",
       assignedGroup: opts.assignedGroup ?? existing?.assignedGroup,
       sessionId: opts.sessionId,
       connectionId: opts.connectionId,
@@ -64,7 +67,7 @@ export class AgentRegistry extends EventEmitter {
     this.connectionMap.set(opts.connectionId, conn);
 
     this.persist();
-    this.emit('agent:connected', record);
+    this.emit("agent:connected", record);
     return record;
   }
 
@@ -74,13 +77,13 @@ export class AgentRegistry extends EventEmitter {
 
     const rec = this.byId.get(agentId);
     if (rec) {
-      this.byId.set(agentId, { ...rec, status: 'offline', lastSeen: Date.now() });
+      this.byId.set(agentId, { ...rec, status: "offline", lastSeen: Date.now() });
     }
 
     this.byConnectionId.delete(connectionId);
     this.connectionMap.delete(connectionId);
     this.persist();
-    this.emit('agent:disconnected', agentId, reason);
+    this.emit("agent:disconnected", agentId, reason);
   }
 
   updateState(agentId: string, state: Partial<AgentState>): void {
@@ -88,13 +91,13 @@ export class AgentRegistry extends EventEmitter {
     if (!rec) return;
     const updated = { ...rec, lastSeen: Date.now() };
     this.byId.set(agentId, updated);
-    this.emit('agent:state-changed', updated, state);
+    this.emit("agent:state-changed", updated, state);
   }
 
   updateMetrics(agentId: string, metrics: Metrics): void {
     const rec = this.byId.get(agentId);
     if (!rec) return;
-    this.emit('agent:metrics-changed', rec, metrics);
+    this.emit("agent:metrics-changed", rec, metrics);
   }
 
   updateStatus(agentId: string, status: AgentStatus, activity?: string): void {
@@ -102,7 +105,7 @@ export class AgentRegistry extends EventEmitter {
     if (!rec) return;
     const updated = { ...rec, status, lastSeen: Date.now() };
     this.byId.set(agentId, updated);
-    this.emit('agent:updated', updated, activity);
+    this.emit("agent:updated", updated, activity);
   }
 
   updateSettingsHash(agentId: string, hash: string): void {
@@ -131,7 +134,7 @@ export class AgentRegistry extends EventEmitter {
   }
 
   listOnline(): AgentRecord[] {
-    return [...this.byId.values()].filter((a) => a.status !== 'offline');
+    return [...this.byId.values()].filter((a) => a.status !== "offline");
   }
 
   count(): number {

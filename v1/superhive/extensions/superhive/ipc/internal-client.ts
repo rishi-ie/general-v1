@@ -1,8 +1,8 @@
-import WebSocket from 'ws';
-import { EventEmitter } from 'events';
-import { Envelope, PROTOCOL_VERSION } from '../types';
-import { generateId } from '../server/envelope';
-import { Logger } from '../logger';
+import { EventEmitter } from "events";
+import WebSocket from "ws";
+import type { Logger } from "../logger";
+import { generateId } from "../server/envelope";
+import { type Envelope, PROTOCOL_VERSION } from "../types";
 
 export class InternalClient extends EventEmitter {
   private ws: WebSocket | null = null;
@@ -11,7 +11,10 @@ export class InternalClient extends EventEmitter {
   private pending: Map<string, (env: Envelope) => void> = new Map();
   private intentionalClose = false;
 
-  constructor(private url: string, private log: Logger) {
+  constructor(
+    private url: string,
+    private log: Logger,
+  ) {
     super();
   }
 
@@ -34,21 +37,21 @@ export class InternalClient extends EventEmitter {
         return;
       }
 
-      this.ws.on('open', () => {
+      this.ws.on("open", () => {
         this.retry = 0;
-        this.log.info('internal: connected to renderer');
-        this.emit('open');
+        this.log.info("internal: connected to renderer");
+        this.emit("open");
         resolve();
       });
 
-      this.ws.on('message', (data) => {
+      this.ws.on("message", (data) => {
         try {
           const env = JSON.parse(data.toString()) as Envelope;
           if (env.v !== PROTOCOL_VERSION) {
-            this.log.warn('internal: unsupported protocol version', { v: env.v });
+            this.log.warn("internal: unsupported protocol version", { v: env.v });
             return;
           }
-          this.emit('message', env);
+          this.emit("message", env);
 
           if (env.corr) {
             const resolver = this.pending.get(env.corr);
@@ -58,21 +61,21 @@ export class InternalClient extends EventEmitter {
             }
           }
         } catch (err) {
-          this.log.error('internal: failed to parse message', { error: String(err) });
+          this.log.error("internal: failed to parse message", { error: String(err) });
         }
       });
 
-      this.ws.on('close', (code, reason) => {
-        this.log.warn('internal: disconnected', { code, reason: reason.toString() });
-        this.emit('close', code, reason.toString());
+      this.ws.on("close", (code, reason) => {
+        this.log.warn("internal: disconnected", { code, reason: reason.toString() });
+        this.emit("close", code, reason.toString());
         if (!this.intentionalClose) {
           this.scheduleReconnect();
         }
       });
 
-      this.ws.on('error', (err) => {
-        this.log.error('internal: socket error', { error: String(err) });
-        this.emit('error', err);
+      this.ws.on("error", (err) => {
+        this.log.error("internal: socket error", { error: String(err) });
+        this.emit("error", err);
       });
     });
   }
@@ -83,12 +86,12 @@ export class InternalClient extends EventEmitter {
     this.log.info(`internal: reconnecting in ${delay}ms (attempt ${this.retry})`);
     this.retryTimer = setTimeout(() => {
       this.connect().catch((err) => {
-        this.log.error('internal: reconnect failed', { error: String(err) });
+        this.log.error("internal: reconnect failed", { error: String(err) });
       });
     }, delay);
   }
 
-  send<T>(env: Omit<Envelope<T>, 'v' | 'id' | 'ts'> & Partial<Pick<Envelope<T>, 'id'>>): void {
+  send<T>(env: Omit<Envelope<T>, "v" | "id" | "ts"> & Partial<Pick<Envelope<T>, "id">>): void {
     const full: Envelope<T> = {
       v: PROTOCOL_VERSION,
       ts: Date.now(),
@@ -100,18 +103,14 @@ export class InternalClient extends EventEmitter {
       try {
         this.ws.send(JSON.stringify(full));
       } catch (err) {
-        this.log.error('internal: send failed', { error: String(err) });
+        this.log.error("internal: send failed", { error: String(err) });
       }
     } else {
-      this.log.warn('internal: not connected, dropping message', { type: env.type });
+      this.log.warn("internal: not connected, dropping message", { type: env.type });
     }
   }
 
-  async request<TReq, TRes>(
-    type: string,
-    payload: TReq,
-    timeoutMs = 5000
-  ): Promise<Envelope<TRes>> {
+  async request<TReq, TRes>(type: string, payload: TReq, timeoutMs = 5000): Promise<Envelope<TRes>> {
     return new Promise((resolve, reject) => {
       const id = generateId();
       const timer = setTimeout(() => {
@@ -145,7 +144,7 @@ export class InternalClient extends EventEmitter {
     }
     if (this.ws) {
       try {
-        this.ws.close(1000, 'host shutting down');
+        this.ws.close(1000, "host shutting down");
       } catch {
         // ignore
       }

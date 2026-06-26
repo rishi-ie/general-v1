@@ -1,12 +1,12 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import {
-  getStoragePath,
-  getMetaStatePath,
   getDecisionLedgerPath,
-  getLineagePath,
-  getSnapshotsPath,
   getEpochPath,
+  getLineagePath,
+  getMetaStatePath,
+  getSnapshotsPath,
+  getStoragePath,
 } from "./paths";
 
 export async function ensureStorageDir(basePath?: string): Promise<void> {

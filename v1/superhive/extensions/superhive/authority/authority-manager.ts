@@ -1,53 +1,56 @@
-import { EventEmitter } from 'events';
-import { AuthorityGrant, AuthorityScope } from '../types';
-import { Store } from '../persistence/store';
-import { Logger } from '../logger';
-import { authorityPath } from '../persistence/paths';
+import { EventEmitter } from "events";
+import type { Logger } from "../logger";
+import { authorityPath } from "../persistence/paths";
+import type { Store } from "../persistence/store";
+import type { AuthorityGrant, AuthorityScope } from "../types";
 
 export class AuthorityManager extends EventEmitter {
   private grants = new Map<string, AuthorityGrant>();
 
-  constructor(private store: Store, private log?: Logger) {
+  constructor(
+    private store: Store,
+    private log?: Logger,
+  ) {
     super();
   }
 
   async restore(): Promise<void> {
     try {
-      const data = await this.store.read<AuthorityGrant[]>(authorityPath(this.store['dir']));
+      const data = await this.store.read<AuthorityGrant[]>(authorityPath(this.store["dir"]));
       for (const g of data ?? []) {
         this.grants.set(g.grantId, g);
       }
       this.log?.info(`authority: restored ${this.grants.size} grants`);
     } catch (err) {
-      this.log?.warn('authority: failed to restore grants', { error: String(err) });
+      this.log?.warn("authority: failed to restore grants", { error: String(err) });
     }
   }
 
   async persist(): Promise<void> {
     try {
-      await this.store.write(authorityPath(this.store['dir']), [...this.grants.values()]);
+      await this.store.write(authorityPath(this.store["dir"]), [...this.grants.values()]);
     } catch (err) {
-      this.log?.error('authority: failed to persist grants', { error: String(err) });
+      this.log?.error("authority: failed to persist grants", { error: String(err) });
     }
   }
 
-  grant(g: Omit<AuthorityGrant, 'createdAt'>): AuthorityGrant {
+  grant(g: Omit<AuthorityGrant, "createdAt">): AuthorityGrant {
     const full: AuthorityGrant = { ...g, createdAt: Date.now() };
     this.grants.set(g.grantId, full);
     this.persist();
-    this.emit('granted', full);
-    this.log?.info('authority: granted', { grantId: g.grantId, from: g.fromAgentId, to: g.toAgentId });
+    this.emit("granted", full);
+    this.log?.info("authority: granted", { grantId: g.grantId, from: g.fromAgentId, to: g.toAgentId });
     return full;
   }
 
-  revoke(grantId: string, reason = 'host revoke'): void {
+  revoke(grantId: string, reason = "host revoke"): void {
     const g = this.grants.get(grantId);
     if (!g) return;
 
     g.revokedAt = Date.now();
     this.persist();
-    this.emit('revoked', { grantId, reason, grant: g });
-    this.log?.info('authority: revoked', { grantId, reason });
+    this.emit("revoked", { grantId, reason, grant: g });
+    this.log?.info("authority: revoked", { grantId, reason });
   }
 
   revokeByAgent(agentId: string): void {
@@ -76,7 +79,7 @@ export class AuthorityManager extends EventEmitter {
 
   hasActiveScope(fromAgentId: string, toAgentId: string, requiredScope: Partial<AuthorityScope>): boolean {
     const active = [...this.grants.values()].filter(
-      (g) => g.fromAgentId === fromAgentId && g.toAgentId === toAgentId && !g.revokedAt
+      (g) => g.fromAgentId === fromAgentId && g.toAgentId === toAgentId && !g.revokedAt,
     );
 
     for (const grant of active) {

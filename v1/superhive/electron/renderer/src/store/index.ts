@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 export interface AgentRecord {
   agentId: string;
@@ -13,7 +13,7 @@ export interface AgentRecord {
   remoteAddr: string;
   connectedAt: number;
   lastSeen: number;
-  status: 'connecting' | 'online' | 'away' | 'busy' | 'offline';
+  status: "connecting" | "online" | "away" | "busy" | "offline";
   settingsHash: string;
   assignedGroup?: string;
   sessionId: string;
@@ -26,7 +26,7 @@ export interface PendingRequest {
   tool: string;
   args: unknown;
   reason: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
   requestedAt: number;
 }
 
@@ -42,7 +42,7 @@ export interface AuthorityGrant {
 
 export interface PresenceEntry {
   agentId: string;
-  status: 'connecting' | 'online' | 'away' | 'busy' | 'offline';
+  status: "connecting" | "online" | "away" | "busy" | "offline";
   activity?: string;
   lastSeen: number;
 }
@@ -53,7 +53,7 @@ export interface InterAgentMessage {
   to?: string;
   group?: string;
   broadcast?: boolean;
-  kind: 'text' | 'request' | 'response' | 'event';
+  kind: "text" | "request" | "response" | "event";
   payload: unknown;
   receivedAt: number;
 }
@@ -100,9 +100,7 @@ export const useStore = create<Store>((set) => ({
 
   removeAgent: (agentId) =>
     set((s) => ({
-      agents: s.agents.map((a) =>
-        a.agentId === agentId ? { ...a, status: 'offline' as const } : a
-      ),
+      agents: s.agents.map((a) => (a.agentId === agentId ? { ...a, status: "offline" as const } : a)),
     })),
 
   updateAgent: (agentId, patch) =>

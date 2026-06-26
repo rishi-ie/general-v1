@@ -1,17 +1,17 @@
-import { app, BrowserWindow, ipcMain, Menu, safeStorage } from 'electron';
-import * as path from 'path';
-import * as child_process from 'child_process';
-import { WebSocketServer as WSS, WebSocket } from 'ws';
-import * as fs from 'fs';
-import * as os from 'os';
+import * as child_process from "child_process";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import { BrowserWindow, Menu, app, ipcMain, safeStorage } from "electron";
+import { WebSocketServer as WSS, WebSocket } from "ws";
 
 let mainWindow: BrowserWindow | null = null;
 let agentProcess: child_process.ChildProcess | null = null;
 let rendererServer: { port: number; close: () => void } | null = null;
-let rendererClients = new Set<WebSocket>();
+const rendererClients = new Set<WebSocket>();
 const INTERNAL_PORT = 7712;
-const SUPERHIVE_EXT_PATH = path.join(__dirname, '../../extensions/superhive');
-const API_KEY_PATH = path.join(app.getPath('userData'), 'api_key.enc');
+const SUPERHIVE_EXT_PATH = path.join(__dirname, "../../extensions/superhive");
+const API_KEY_PATH = path.join(app.getPath("userData"), "api_key.enc");
 
 function loadApiKey(): string | null {
   if (process.env.SUPERHIVE_API_KEY) {
@@ -37,24 +37,24 @@ function saveApiKey(key: string): void {
 
 async function startRendererServer(): Promise<{ port: number; close: () => void }> {
   return new Promise((resolve) => {
-    const wss = new WSS({ host: '127.0.0.1', port: INTERNAL_PORT });
+    const wss = new WSS({ host: "127.0.0.1", port: INTERNAL_PORT });
 
-    wss.on('listening', () => {
+    wss.on("listening", () => {
       resolve({
         port: INTERNAL_PORT,
         close: () => wss.close(),
       });
     });
 
-    wss.on('connection', (ws) => {
+    wss.on("connection", (ws) => {
       rendererClients.add(ws);
-      ws.on('message', (data) => {
+      ws.on("message", (data) => {
         const msg = data.toString();
         if (mainWindow && !mainWindow.isDestroyed()) {
-          mainWindow.webContents.send('superhive:in', msg);
+          mainWindow.webContents.send("superhive:in", msg);
         }
       });
-      ws.on('close', () => rendererClients.delete(ws));
+      ws.on("close", () => rendererClients.delete(ws));
     });
   });
 }
@@ -65,82 +65,82 @@ function spawnAgent(): void {
 
   const env = {
     ...process.env,
-    SUPERHIVE_PUBLIC_PORT: '7711',
+    SUPERHIVE_PUBLIC_PORT: "7711",
     SUPERHIVE_INTERNAL_URL: `ws://127.0.0.1:${INTERNAL_PORT}`,
-    SUPERHIVE_MODE: 'localhost',
+    SUPERHIVE_MODE: "localhost",
   };
 
-  agentProcess = child_process.spawn(piPath, ['--extension', extPath], {
+  agentProcess = child_process.spawn(piPath, ["--extension", extPath], {
     env,
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ["ignore", "pipe", "pipe"],
   });
 
-  agentProcess.stdout?.on('data', (d) => {
+  agentProcess.stdout?.on("data", (d) => {
     process.stdout.write(`[agent] ${d}`);
   });
 
-  agentProcess.stderr?.on('data', (d) => {
+  agentProcess.stderr?.on("data", (d) => {
     process.stderr.write(`[agent!] ${d}`);
   });
 
-  agentProcess.on('exit', (code) => {
+  agentProcess.on("exit", (code) => {
     console.log(`[main] agent exited with code ${code}`);
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('agent:exited', code);
+      mainWindow.webContents.send("agent:exited", code);
     }
   });
 }
 
 function findPiBinary(): string {
   const candidates = [
-    path.join(__dirname, '../../../../pi/pi'),
-    path.join(__dirname, '../../../pi/pi'),
-    path.join(process.cwd(), 'pi'),
-    'pi',
+    path.join(__dirname, "../../../../pi/pi"),
+    path.join(__dirname, "../../../pi/pi"),
+    path.join(process.cwd(), "pi"),
+    "pi",
   ];
 
   for (const candidate of candidates) {
     try {
-      require('fs').accessSync(candidate);
+      require("fs").accessSync(candidate);
       return candidate;
     } catch {
       // try next
     }
   }
 
-  return 'pi';
+  return "pi";
 }
 
 function buildMenu(): void {
   const template: Electron.MenuItemConstructorOptions[] = [
     {
-      label: 'SuperHive',
+      label: "SuperHive",
       submenu: [
-        { label: 'About SuperHive', role: 'about' },
-        { type: 'separator' },
-        { label: 'Reload Agent', accelerator: 'CmdOrCtrl+R', click: () => restartAgent() },
-        { type: 'separator' },
-        { label: 'Quit', accelerator: 'CmdOrCtrl+Q', role: 'quit' },
+        { label: "About SuperHive", role: "about" },
+        { type: "separator" },
+        { label: "Reload Agent", accelerator: "CmdOrCtrl+R", click: () => restartAgent() },
+        { type: "separator" },
+        { label: "Quit", accelerator: "CmdOrCtrl+Q", role: "quit" },
       ],
     },
     {
-      label: 'Edit',
+      label: "Edit",
       submenu: [
-        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', role: 'undo' },
-        { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo' },
-        { type: 'separator' },
-        { label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
-        { label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
-        { label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
+        { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+        { type: "separator" },
+        { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+        { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+        { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
       ],
     },
     {
-      label: 'Window',
+      label: "Window",
       submenu: [
-        { label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize' },
-        { label: 'Zoom', role: 'zoom' },
-        { type: 'separator' },
-        { label: 'Bring All to Front', role: 'front' },
+        { label: "Minimize", accelerator: "CmdOrCtrl+M", role: "minimize" },
+        { label: "Zoom", role: "zoom" },
+        { type: "separator" },
+        { label: "Bring All to Front", role: "front" },
       ],
     },
   ];
@@ -157,8 +157,8 @@ function restartAgent(): void {
   setTimeout(() => spawnAgent(), 1000);
 }
 
-ipcMain.on('superhive:out', (_event, msg) => {
-  const data = typeof msg === 'string' ? msg : JSON.stringify(msg);
+ipcMain.on("superhive:out", (_event, msg) => {
+  const data = typeof msg === "string" ? msg : JSON.stringify(msg);
   for (const ws of rendererClients) {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(data);
@@ -166,8 +166,8 @@ ipcMain.on('superhive:out', (_event, msg) => {
   }
 });
 
-ipcMain.handle('superhive:send', (_event, msg) => {
-  const data = typeof msg === 'string' ? msg : JSON.stringify(msg);
+ipcMain.handle("superhive:send", (_event, msg) => {
+  const data = typeof msg === "string" ? msg : JSON.stringify(msg);
   for (const ws of rendererClients) {
     if (ws.readyState === WebSocket.OPEN) {
       ws.send(data);
@@ -175,16 +175,16 @@ ipcMain.handle('superhive:send', (_event, msg) => {
   }
 });
 
-ipcMain.handle('api-key:get', () => {
+ipcMain.handle("api-key:get", () => {
   return loadApiKey();
 });
 
-ipcMain.handle('api-key:set', (_event, key: string) => {
+ipcMain.handle("api-key:set", (_event, key: string) => {
   saveApiKey(key);
   return true;
 });
 
-ipcMain.on('agent:restart', () => {
+ipcMain.on("agent:restart", () => {
   restartAgent();
 });
 
@@ -199,9 +199,9 @@ app.whenReady().then(async () => {
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
-    title: 'SuperHive',
+    title: "SuperHive",
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -210,18 +210,18 @@ app.whenReady().then(async () => {
 
   const isDev = !app.isPackaged;
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL("http://localhost:5173");
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 
-  mainWindow.on('closed', () => {
+  mainWindow.on("closed", () => {
     mainWindow = null;
   });
 });
 
-app.on('window-all-closed', () => {
+app.on("window-all-closed", () => {
   if (agentProcess) {
     agentProcess.kill();
     agentProcess = null;
@@ -233,7 +233,7 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
-app.on('activate', () => {
+app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     app.whenReady().then(async () => {
       rendererServer = await startRendererServer();
@@ -242,7 +242,7 @@ app.on('activate', () => {
   }
 });
 
-app.on('before-quit', () => {
+app.on("before-quit", () => {
   if (agentProcess) {
     agentProcess.kill();
     agentProcess = null;

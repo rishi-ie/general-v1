@@ -1,4 +1,11 @@
-import { useStore, AgentRecord, PendingRequest, AuthorityGrant, PresenceEntry, InterAgentMessage } from '../store';
+import {
+  type AgentRecord,
+  type AuthorityGrant,
+  type InterAgentMessage,
+  type PendingRequest,
+  type PresenceEntry,
+  useStore,
+} from "../store";
 
 interface Envelope<T = unknown> {
   v: number;
@@ -10,7 +17,7 @@ interface Envelope<T = unknown> {
   payload: T;
 }
 
-const INTERNAL_URL = 'ws://127.0.0.1:7712';
+const INTERNAL_URL = "ws://127.0.0.1:7712";
 
 class RendererWsClient {
   private ws: WebSocket | null = null;
@@ -26,7 +33,7 @@ class RendererWsClient {
     this.ws = new WebSocket(INTERNAL_URL);
 
     this.ws.onopen = () => {
-      console.log('[renderer-ws] connected');
+      console.log("[renderer-ws] connected");
       this.retry = 0;
       useStore.getState().setConnected(true);
       this.requestAgents();
@@ -37,18 +44,18 @@ class RendererWsClient {
         const env: Envelope = JSON.parse(event.data);
         this.handle(env);
       } catch (err) {
-        console.error('[renderer-ws] failed to parse message', err);
+        console.error("[renderer-ws] failed to parse message", err);
       }
     };
 
     this.ws.onclose = () => {
-      console.log('[renderer-ws] disconnected');
+      console.log("[renderer-ws] disconnected");
       useStore.getState().setConnected(false);
       this.scheduleReconnect();
     };
 
     this.ws.onerror = (err) => {
-      console.error('[renderer-ws] error', err);
+      console.error("[renderer-ws] error", err);
     };
   }
 
@@ -66,51 +73,51 @@ class RendererWsClient {
     const store = useStore.getState();
 
     switch (env.type) {
-      case 'AGENT_CONNECTED': {
+      case "AGENT_CONNECTED": {
         const { agent } = env.payload as { agent: AgentRecord };
         store.addAgent(agent);
         break;
       }
-      case 'AGENT_DISCONNECTED': {
+      case "AGENT_DISCONNECTED": {
         const { agentId } = env.payload as { agentId: string };
         store.removeAgent(agentId);
         break;
       }
-      case 'AGENT_STATE_CHANGED': {
+      case "AGENT_STATE_CHANGED": {
         const { agentId, state } = env.payload as { agentId: string; state: Partial<AgentRecord> };
         store.updateAgent(agentId, state);
         break;
       }
-      case 'PERMISSION_REQUESTED': {
+      case "PERMISSION_REQUESTED": {
         const { request } = env.payload as { agentId: string; request: PendingRequest };
         store.addPendingPermission(request);
         break;
       }
-      case 'PERMISSION_RESOLVED': {
+      case "PERMISSION_RESOLVED": {
         const { requestId } = env.payload as { requestId: string };
         store.removePendingPermission(requestId);
         break;
       }
-      case 'INTER_AGENT_DELIVERY': {
+      case "INTER_AGENT_DELIVERY": {
         const msg = env.payload as InterAgentMessage;
         store.addMessage(msg);
         break;
       }
-      case 'AUTHORITY_CHANGED': {
-        const { change, grant } = env.payload as { change: 'granted' | 'revoked'; grant: AuthorityGrant };
-        if (change === 'granted') {
+      case "AUTHORITY_CHANGED": {
+        const { change, grant } = env.payload as { change: "granted" | "revoked"; grant: AuthorityGrant };
+        if (change === "granted") {
           store.addAuthority(grant);
         } else {
           store.removeAuthority(grant.grantId);
         }
         break;
       }
-      case 'PRESENCE_CHANGED': {
+      case "PRESENCE_CHANGED": {
         const { snapshot } = env.payload as { snapshot: PresenceEntry[] };
         store.setPresence(snapshot);
         break;
       }
-      case 'INITIAL_SNAPSHOT': {
+      case "INITIAL_SNAPSHOT": {
         const { agents, permissions, authority, presence } = env.payload as {
           agents: AgentRecord[];
           permissions: PendingRequest[];
@@ -128,41 +135,41 @@ class RendererWsClient {
     }
   }
 
-  private send(env: Omit<Envelope, 'v' | 'ts' | 'id'>): void {
+  private send(env: Omit<Envelope, "v" | "ts" | "id">): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(JSON.stringify({ v: 1, id: crypto.randomUUID(), ts: Date.now(), ...env }));
     }
   }
 
   private requestAgents(): void {
-    this.send({ type: 'LIST_AGENTS' });
+    this.send({ type: "LIST_AGENTS" });
   }
 
   approvePermission(requestId: string, remember?: boolean): void {
-    this.send({ type: 'APPROVE_PERMISSION', payload: { requestId, remember } });
+    this.send({ type: "APPROVE_PERMISSION", payload: { requestId, remember } });
   }
 
   denyPermission(requestId: string, reason?: string): void {
-    this.send({ type: 'DENY_PERMISSION', payload: { requestId, reason } });
+    this.send({ type: "DENY_PERMISSION", payload: { requestId, reason } });
   }
 
   pushSettings(agentId: string, patch: unknown[], expectedHash?: string): void {
-    this.send({ type: 'PUSH_SETTINGS', payload: { agentId, patch, expectedHash } });
+    this.send({ type: "PUSH_SETTINGS", payload: { agentId, patch, expectedHash } });
   }
 
   sendMessage(from: string, content: string, to?: string, broadcast?: boolean): void {
     this.send({
-      type: 'SEND_MESSAGE',
-      payload: { from, to, broadcast, kind: 'text', payload: content },
+      type: "SEND_MESSAGE",
+      payload: { from, to, broadcast, kind: "text", payload: content },
     });
   }
 
   revokeAuthority(grantId: string): void {
-    this.send({ type: 'REVOKE_AUTHORITY', payload: { grantId } });
+    this.send({ type: "REVOKE_AUTHORITY", payload: { grantId } });
   }
 
   kickAgent(agentId: string, reason?: string): void {
-    this.send({ type: 'KICK_AGENT', payload: { agentId, reason } });
+    this.send({ type: "KICK_AGENT", payload: { agentId, reason } });
   }
 
   disconnect(): void {

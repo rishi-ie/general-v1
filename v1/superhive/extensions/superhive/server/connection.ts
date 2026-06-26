@@ -1,7 +1,7 @@
-import { EventEmitter } from 'events';
-import { WebSocket } from 'ws';
-import { decodeFrame, encodeFrame, validateEnvelope, generateId } from './envelope';
-import { Envelope } from '../types';
+import { EventEmitter } from "events";
+import { WebSocket } from "ws";
+import type { Envelope } from "../types";
+import { decodeFrame, encodeFrame, generateId, validateEnvelope } from "./envelope";
 
 export interface ConnectionOptions {
   heartbeatMs: number;
@@ -18,19 +18,19 @@ export class Connection extends EventEmitter {
     public readonly ws: WebSocket,
     public readonly id: string,
     public readonly remoteAddr: string,
-    private opts: ConnectionOptions
+    private opts: ConnectionOptions,
   ) {
     super();
     this.wire();
   }
 
   private wire(): void {
-    this.ws.on('message', (data) => {
+    this.ws.on("message", (data) => {
       let env: Envelope;
       try {
         env = decodeFrame(data.toString());
       } catch {
-        this.close(4400, 'bad frame: not valid JSON');
+        this.close(4400, "bad frame: not valid JSON");
         return;
       }
 
@@ -46,21 +46,21 @@ export class Connection extends EventEmitter {
       }
 
       this.resetTimeout();
-      this.emit('message', valid.env);
+      this.emit("message", valid.env);
     });
 
-    this.ws.on('pong', () => {
+    this.ws.on("pong", () => {
       this.lastPong = Date.now();
       this.alive = true;
       this.resetTimeout();
     });
 
-    this.ws.on('close', (code, reason) => {
-      this.emit('close', code, reason.toString());
+    this.ws.on("close", (code, reason) => {
+      this.emit("close", code, reason.toString());
     });
 
-    this.ws.on('error', (err) => {
-      this.emit('error', err);
+    this.ws.on("error", (err) => {
+      this.emit("error", err);
     });
 
     this.startHeartbeat();
@@ -70,14 +70,14 @@ export class Connection extends EventEmitter {
   private startHeartbeat(): void {
     this.heartbeatTimer = setInterval(() => {
       if (!this.alive) {
-        this.close(4408, 'heartbeat timeout');
+        this.close(4408, "heartbeat timeout");
         return;
       }
       this.alive = false;
       try {
         this.ws.ping();
       } catch {
-        this.close(4408, 'heartbeat ping failed');
+        this.close(4408, "heartbeat ping failed");
       }
     }, this.opts.heartbeatMs);
   }
@@ -91,11 +91,11 @@ export class Connection extends EventEmitter {
       clearTimeout(this.timeoutTimer);
     }
     this.timeoutTimer = setTimeout(() => {
-      this.close(4408, 'connection timeout');
+      this.close(4408, "connection timeout");
     }, this.opts.heartbeatTimeoutMs);
   }
 
-  send<T>(env: Omit<Envelope<T>, 'v' | 'ts' | 'id'> & Partial<Pick<Envelope<T>, 'id'>>): void {
+  send<T>(env: Omit<Envelope<T>, "v" | "ts" | "id"> & Partial<Pick<Envelope<T>, "id">>): void {
     const full: Envelope<T> = {
       v: 1,
       ts: Date.now(),
@@ -107,7 +107,7 @@ export class Connection extends EventEmitter {
       try {
         this.ws.send(encodeFrame(full));
       } catch (err) {
-        this.emit('error', err);
+        this.emit("error", err);
       }
     }
   }

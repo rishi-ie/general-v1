@@ -12,5 +12,3 @@ declare global {
     superhive: SuperHiveWindow;
   }
 }
-
-export {};

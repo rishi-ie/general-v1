@@ -1,51 +1,51 @@
-import Ajv, { ValidateFunction } from 'ajv';
-import { AgentManifest } from '../types';
+import Ajv, { type ValidateFunction } from "ajv";
+import type { AgentManifest } from "../types";
 
 const ajv = new Ajv({ allErrors: true, strict: false });
 
 const schemaCache = new WeakMap<object, ValidateFunction>();
 
 const manifestSchema = {
-  type: 'object',
-  required: ['name', 'version', 'settingsSchema', 'capabilities'],
+  type: "object",
+  required: ["name", "version", "settingsSchema", "capabilities"],
   properties: {
-    name: { type: 'string', minLength: 1, maxLength: 64 },
-    version: { type: 'string', pattern: '^\\d+\\.\\d+\\.\\d+' },
-    description: { type: 'string', maxLength: 500 },
+    name: { type: "string", minLength: 1, maxLength: 64 },
+    version: { type: "string", pattern: "^\\d+\\.\\d+\\.\\d+" },
+    description: { type: "string", maxLength: 500 },
     capabilities: {
-      type: 'array',
-      items: { type: 'string', minLength: 1, maxLength: 64 },
+      type: "array",
+      items: { type: "string", minLength: 1, maxLength: 64 },
       minItems: 0,
       maxItems: 100,
     },
     settingsSchema: {
-      type: 'object',
+      type: "object",
       additionalProperties: true,
     },
     permissions: {
-      type: 'array',
-      items: { type: 'string' },
+      type: "array",
+      items: { type: "string" },
     },
     interAgent: {
-      type: 'object',
+      type: "object",
       properties: {
-        acceptsDMs: { type: 'boolean' },
-        acceptsBroadcasts: { type: 'boolean' },
+        acceptsDMs: { type: "boolean" },
+        acceptsBroadcasts: { type: "boolean" },
         groups: {
-          type: 'array',
-          items: { type: 'string', minLength: 1, maxLength: 64 },
+          type: "array",
+          items: { type: "string", minLength: 1, maxLength: 64 },
         },
       },
       additionalProperties: false,
     },
     modules: {
-      type: 'object',
+      type: "object",
       additionalProperties: {
-        type: 'object',
-        required: ['version', 'settingsSchema'],
+        type: "object",
+        required: ["version", "settingsSchema"],
         properties: {
-          version: { type: 'string', pattern: '^\\d+\\.\\d+\\.\\d+' },
-          settingsSchema: { type: 'object', additionalProperties: true },
+          version: { type: "string", pattern: "^\\d+\\.\\d+\\.\\d+" },
+          settingsSchema: { type: "object", additionalProperties: true },
         },
         additionalProperties: false,
       },
@@ -76,7 +76,7 @@ export function validateManifest(m: unknown): { ok: true; manifest: AgentManifes
 
 export function validateSettingsAgainstSchema(
   settings: unknown,
-  schema: Record<string, unknown>
+  schema: Record<string, unknown>,
 ): { ok: true } | { ok: false; errors: string[] } {
   const v = getValidator(schema);
   if (v(settings)) {

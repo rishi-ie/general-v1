@@ -1,26 +1,29 @@
-import { EventEmitter } from 'events';
-import { AgentRegistry } from '../registry/agent-registry';
-import { PresenceEntry, AgentRecord } from '../types';
-import { Logger } from '../logger';
+import { EventEmitter } from "events";
+import type { Logger } from "../logger";
+import type { AgentRegistry } from "../registry/agent-registry";
+import { AgentRecord, type PresenceEntry } from "../types";
 
 export class PresenceTracker extends EventEmitter {
   private lastSnapshot: PresenceEntry[] = [];
 
-  constructor(private registry: AgentRegistry, private log?: Logger) {
+  constructor(
+    private registry: AgentRegistry,
+    private log?: Logger,
+  ) {
     super();
     this.wireEvents();
   }
 
   private wireEvents(): void {
-    this.registry.on('agent:connected', (a) => {
+    this.registry.on("agent:connected", (a) => {
       this.snapshotAndDiff();
     });
 
-    this.registry.on('agent:disconnected', () => {
+    this.registry.on("agent:disconnected", () => {
       this.snapshotAndDiff();
     });
 
-    this.registry.on('agent:updated', (a) => {
+    this.registry.on("agent:updated", (a) => {
       if (a.status) {
         this.snapshotAndDiff();
       }
@@ -48,17 +51,17 @@ export class PresenceTracker extends EventEmitter {
 
     if (changed) {
       this.lastSnapshot = next;
-      this.emit('changed', next);
+      this.emit("changed", next);
     }
   }
 
   isOnline(agentId: string): boolean {
     const rec = this.registry.get(agentId);
-    return rec?.status !== 'offline' && rec?.status !== undefined;
+    return rec?.status !== "offline" && rec?.status !== undefined;
   }
 
   isBusy(agentId: string): boolean {
-    return this.registry.get(agentId)?.status === 'busy';
+    return this.registry.get(agentId)?.status === "busy";
   }
 
   getLastSeen(agentId: string): number | undefined {

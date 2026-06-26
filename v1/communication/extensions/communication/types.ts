@@ -40,7 +40,7 @@ export interface AgentState {
 export interface SubAgentStatus {
   id: string;
   type: string;
-  status: 'running' | 'paused' | 'done' | 'failed';
+  status: "running" | "paused" | "done" | "failed";
 }
 
 export interface Metrics {
@@ -55,7 +55,7 @@ export interface InterAgentMessage {
   to?: string;
   group?: string;
   broadcast?: boolean;
-  kind: 'text' | 'request' | 'response' | 'event';
+  kind: "text" | "request" | "response" | "event";
   payload: unknown;
   from: string;
   receivedAt: number;
@@ -82,11 +82,11 @@ export interface PendingRequest {
   tool: string;
   args: unknown;
   reason: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: "low" | "medium" | "high" | "critical";
 }
 
 export interface PermissionDecision {
-  decision: 'allow' | 'deny';
+  decision: "allow" | "deny";
   reason?: string;
   remember?: boolean;
 }
@@ -97,9 +97,9 @@ export interface ValidationError {
 }
 
 export interface SettingsPatch {
-  op: 'add' | 'remove' | 'replace' | 'test';
+  op: "add" | "remove" | "replace" | "test";
   path: string;
   value?: unknown;
 }
 
-export type HostCommand = 'reload' | 'restart' | 'pause' | 'resume';
+export type HostCommand = "reload" | "restart" | "pause" | "resume";

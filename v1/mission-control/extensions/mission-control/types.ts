@@ -2,8 +2,8 @@ export interface Ticket {
   id: string;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'done';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  status: "open" | "in_progress" | "done";
+  priority: "low" | "medium" | "high" | "critical";
   created: string;
   updated: string;
   subtasks: string[];
@@ -47,11 +47,11 @@ export const DEFAULT_CONFIDENCE: ConfidenceThreshold = {
   confirm: 0.5,
 };
 
-export const DEFAULT_TICKET: Omit<Ticket, 'id' | 'created' | 'updated'> = {
-  title: '',
-  description: '',
-  status: 'open',
-  priority: 'medium',
+export const DEFAULT_TICKET: Omit<Ticket, "id" | "created" | "updated"> = {
+  title: "",
+  description: "",
+  status: "open",
+  priority: "medium",
   subtasks: [],
   tags: [],
   extras: {},
