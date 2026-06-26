@@ -20,3 +20,6 @@ supervisord.conf.local
 .vscode/settings.json
 v1/*/*
 v1/sub-agent/src/src/
+.mission-control/
+meta-agent/.setup-complete
+meta-agent/meta-agent-config/extensions/mem0-skills
