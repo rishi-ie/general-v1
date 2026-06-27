@@ -6,7 +6,7 @@ A portable, self-contained CLI agent built on [Pi Agent](https://github.com/eare
 
 - **12 integrated modules** — identity, docs, planning, browser, lancedb, mission-control, permission, sub-agent, sub-agent-context, communication, superhive
 - **7 cross-module integrations** — auto-capture decisions, sync plans, spawn sub-agents, route permissions, push state
-- **9 LLM providers** — MiniMax, Anthropic, Google, OpenAI, DeepSeek, Groq, Mistral, OpenRouter, Together AI; auto-detected from env
+- **12 LLM providers** — MiniMax, Anthropic, Google, OpenAI, DeepSeek, Groq, Mistral, OpenRouter, Together AI, Fireworks AI, NVIDIA NIM, Hugging Face; auto-detected from env
 - **Portable** — one folder = one agent identity (ULID). Package as `.tar.gz`, extract anywhere, run
 - **Offline mode** — all commands work without an API key; LLM calls stubbed gracefully
 - **Persistent cognitive memory** — SAC (sub-agent-context) tracks identity, goals, decisions, open loops, and lineage epochs
@@ -18,15 +18,14 @@ A portable, self-contained CLI agent built on [Pi Agent](https://github.com/eare
 ## Quick Start
 
 ```bash
-# 1. Clone and install
+# 1. Clone
 git clone <repo-url> general-v1
 cd general-v1
-npm install
 
-# 2. Add your API key (any of these env vars auto-detected)
-export MINIMAX_API_KEY=your-key   # MiniMax (priority 1)
+# 2. Run the interactive setup (one time — installs deps + configures API key)
+./setup.sh
 
-# 3. Run
+# 3. Run the agent
 ./meta-agent/run.sh                # Interactive CLI
 ./meta-agent/run.sh -p "hello"    # One-shot prompt
 ./meta-agent/run.sh --offline     # Offline mode (no API key needed)
@@ -204,6 +203,9 @@ general-v1 Agent Folder (one folder = one agent)
 | `MISTRAL_API_KEY` | Mistral | mistral-large-latest |
 | `OPENROUTER_API_KEY` | OpenRouter | anthropic/claude-3.5-sonnet |
 | `TOGETHER_API_KEY` | Together AI | meta-llama/Llama-3.3-70B |
+| `FIREWORKS_API_KEY` | Fireworks AI | accounts/fireworks/models/llama-v3p1-70b |
+| `NVIDIA_API_KEY` | NVIDIA NIM | nvidia/llama-3.1-nemotron-70b-instruct |
+| `HF_TOKEN` | Hugging Face | meta-llama/Llama-3.3-70B-Instruct |
 
 **SuperHive**
 
